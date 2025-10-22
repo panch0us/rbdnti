@@ -1,27 +1,57 @@
-<!-- news_site/templates/news_site/base.html -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}RBDNTI Новости{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Региональный банк данных научно-технической информации{% endblock %}</title>
+    <link rel="stylesheet" href="/static/news_site/css/style.css">
 </head>
-<body class="bg-light">
+<body>
+    <!-- Header -->
+    <header class="header-banner">
+        <div class="header-content">
+            <div class="header-logo">
+                🛡️ ГЕРБ<br>УМВД
+            </div>
+            <div class="header-title">
+                <h1>Региональный банк данных научно-технической информации</h1>
+                <p>УМВД России по Брянской области</p>
+            </div>
+            <div class="header-logo">
+                🇷🇺 ФЛАГ<br>РОССИИ
+            </div>
+        </div>
+    </header>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-  <div class="container">
-    <a class="navbar-brand" href="/">RBDNTI</a>
-  </div>
-</nav>
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
 
-<div class="container">
-    {% block content %}{% endblock %}
-</div>
+    <!-- Ticker -->
+    <div class="ticker-container">
+        <div class="ticker-content">
+            {% for quote in ticker_quotes %}
+            <span class="ticker-item">«{{ quote }}»</span>
+            {% endfor %}
+        </div>
+    </div>
 
-<footer class="text-center text-muted mt-5 mb-3">
-    <hr>
-    <p>&copy; 2025 RBDNTI</p>
-</footer>
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 ИЦ УМВД России по Брянской области</p>
+    </footer>
 
+    <script>
+        // Автоматическое обновление года в футере
+        document.addEventListener('DOMContentLoaded', function() {
+            const yearElement = document.querySelector('.footer p');
+            if (yearElement) {
+                const currentYear = new Date().getFullYear();
+                yearElement.innerHTML = yearElement.innerHTML.replace('2024', currentYear);
+            }
+        });
+    </script>
 </body>
 </html>

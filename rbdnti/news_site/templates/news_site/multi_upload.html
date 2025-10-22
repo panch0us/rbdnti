@@ -41,29 +41,12 @@
     border-radius: 4px;
     overflow: hidden;
 }
-.news-info {
-    background: #e7f3ff;
-    border: 1px solid #b8daff;
-    padding: 15px;
-    margin: 10px 0;
-    border-radius: 4px;
-}
 </style>
 {% endblock %}
 
 {% block content %}
 <div id="content-main">
     <h1>{{ title }}</h1>
-    
-    <div class="news-info">
-        <h3>Информация о новости:</h3>
-        <p><strong>Заголовок:</strong> {{ news.title }}</p>
-        <p><strong>Секция:</strong> {{ news.section.title }}</p>
-        {% if news.category %}
-            <p><strong>Категория:</strong> {{ news.category.get_full_path }}</p>
-        {% endif %}
-        <p><strong>Дата создания:</strong> {{ news.created_at|date:"d.m.Y H:i" }}</p>
-    </div>
     
     <div class="module">
         <form method="post" enctype="multipart/form-data" id="upload-form">
@@ -83,15 +66,14 @@
             
             <div class="submit-row">
                 <input type="submit" value="📁 Загрузить выбранные файлы" class="default" style="padding: 10px 20px;">
-                <a href="/admin/news_site/news/{{ news.id }}/change/" class="button" style="padding: 10px 20px; margin-left: 10px;">✏️ Вернуться к редактированию новости</a>
-                <a href="/admin/news_site/news/" class="button" style="padding: 10px 20px; margin-left: 10px;">📋 К списку новостей</a>
+                <a href="/admin/news_site/news/{{ news.id }}/change/" class="button" style="padding: 10px 20px; margin-left: 10px;">❌ Отмена</a>
             </div>
         </form>
     </div>
     
     {% if news.files.all %}
     <div class="module current-files">
-        <h2>Текущие файлы новости ({{ news.files.count }})</h2>
+        <h2>Текущие файлы новости</h2>
         <table>
             <thead>
                 <tr>
@@ -150,12 +132,6 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             uploadInfo.style.display = 'none';
         }
-    });
-    
-    // Убираем beforeunload - это вызывало предупреждение
-    const form = document.getElementById('upload-form');
-    form.addEventListener('submit', function() {
-        window.removeEventListener('beforeunload', preventUnload);
     });
 });
 </script>
