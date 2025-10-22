@@ -1,0 +1,13 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools-items %}
+    {{ block.super }}
+    {% if original %}
+    <li>
+        <a href="{% url 'admin:news_upload_files' original.pk %}" class="historylink" style="background: #417690; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;">
+            📁 Массовая загрузка файлов
+        </a>
+    </li>
+    {% endif %}
+{% endblock %}

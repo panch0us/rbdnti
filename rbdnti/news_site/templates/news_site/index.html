@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>RBDNTI — Главная</title>
+</head>
+<body>
+  <h1>RBDNTI — Новости</h1>
+
+  <h2>Секции</h2>
+  <ul>
+    {% for section in sections %}
+      <li><a href="/{{ section.slug }}/">{{ section.title }}</a></li>
+    {% empty %}
+      <li>Нет секций.</li>
+    {% endfor %}
+  </ul>
+
+  <h2>Последние новости</h2>
+  <ul>
+    {% for news_item in latest_news %}
+      <li>
+        <strong><a href="{% url 'news_site:news_detail' news_item.id %}">{{ news_item.title }}</a></strong>
+        — <em>{{ news_item.created_at|date:"d.m.Y H:i" }}</em>
+        <br>
+        В разделе:
+        <a href="/{{ news_item.section.slug }}/">{{ news_item.section.title }}</a>
+        {% if news_item.category %}
+          — категория:
+          <a href="/{{ news_item.section.slug }}/{{ news_item.category.get_path }}/">
+            {{ news_item.category.title }}
+          </a>
+        {% endif %}
+
+        {% if news_item.files.all %}
+          <ul>
+            {% for f in news_item.files.all %}
+              <li><a href="{{ f.file.url }}" download>{{ f.filename }}</a></li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </li>
+    {% empty %}
+      <li>Пока новостей нет.</li>
+    {% endfor %}
+  </ul>
+</body>
+</html>

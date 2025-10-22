@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>{{ section.title }}{% if category %} — {{ category.title }}{% endif %}</title>
+</head>
+<body>
+  <p><a href="/">Главная</a> / <a href="/{{ section.slug }}/">{{ section.title }}</a>
+    {% if breadcrumbs %}
+      {% for crumb in breadcrumbs %}
+        / <a href="/{{ section.slug }}/{{ crumb.get_path }}/">{{ crumb.title }}</a>
+      {% endfor %}
+    {% endif %}
+    {% if category %} / {{ category.title }}{% endif %}
+  </p>
+
+  <h1>{{ section.title }}</h1>
+
+  {% if category %}
+    <h2>Категория: {{ category.title }}</h2>
+  {% endif %}
+
+  {% if categories %}
+    <h3>Категории</h3>
+    <ul>
+      {% for cat in categories %}
+        <li><a href="/{{ section.slug }}/{{ cat.get_path }}/">{{ cat.title }}</a></li>
+      {% empty %}
+        <li>Нет категорий.</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if subcategories %}
+    <h3>Подкатегории</h3>
+    <ul>
+      {% for sub in subcategories %}
+        <li><a href="/{{ section.slug }}/{{ sub.get_path }}/">{{ sub.title }}</a></li>
+      {% empty %}
+        <li>Нет подкатегорий.</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <h3>Новости</h3>
+  <ul>
+    {% for news_item in news %}
+      <li>
+        <strong><a href="{% url 'news_site:news_detail' news_item.id %}">{{ news_item.title }}</a></strong> 
+        - <small>{{ news_item.created_at|date:"d.m.Y H:i" }}</small>
+        <p>{{ news_item.content|linebreaksbr }}</p>
+        
+        {% if news_item.files.all %}
+          <p><strong>Файлы:</strong></p>
+          <ul>
+            {% for file in news_item.files.all %}
+              <li><a href="{{ file.file.url }}" download>{{ file.filename }}</a></li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </li>
+    {% empty %}
+      <li>Пока новостей нет.</li>
+    {% endfor %}
+  </ul>
+
+</body>
+</html>

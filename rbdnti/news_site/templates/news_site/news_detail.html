@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>{{ news.title }}</title>
+</head>
+<body>
+  <p>
+    <a href="/">Главная</a> / 
+    <a href="/{{ news.section.slug }}/">{{ news.section.title }}</a>
+    {% if news.category %}
+      / <a href="/{{ news.section.slug }}/{{ news.category.get_path }}/">{{ news.category.get_full_path }}</a>
+    {% endif %}
+    / {{ news.title }}
+  </p>
+
+  <h1>{{ news.title }}</h1>
+  <p><small>Опубликовано: {{ news.created_at|date:"d.m.Y H:i" }}</small></p>
+  
+  <div>
+    {{ news.content|linebreaks }}
+  </div>
+
+  {% if news.files.all %}
+    <h3>Прикрепленные файлы:</h3>
+    <ul>
+      {% for file in news.files.all %}
+        <li><a href="{{ file.file.url }}" download>{{ file.filename }}</a></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <p><a href="javascript:history.back()">← Назад</a></p>
+</body>
+</html>
