@@ -3,7 +3,7 @@ from django.urls import path
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.html import format_html
 from django.http import JsonResponse
-from .models import News, NewsFile, Section, Category
+from .models import News, NewsFile, Section, Category, DownloadStatistic
 
 class NewsFileInline(admin.TabularInline):
     model = NewsFile
@@ -130,3 +130,9 @@ class NewsFileAdmin(admin.ModelAdmin):
     list_display = ('filename', 'news', 'file')
     list_filter = ('news__section',)
     search_fields = ('filename', 'news__title')
+
+@admin.register(DownloadStatistic)
+class DownloadStatisticAdmin(admin.ModelAdmin):
+    list_display = ['news_file', 'ip_address', 'downloaded_at']
+    list_filter = ['downloaded_at']
+    search_fields = ['news_file__filename', 'ip_address']
