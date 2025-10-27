@@ -1,17 +1,18 @@
 {% extends "news_site/base.html" %}
-{% load static %}
 
 {% block title %}Главная - РБД НТИ УМВД России по Брянской области{% endblock %}
 
 {% block content %}
-<!-- Секции -->
 <section>
-    <h2 class="section-title">Разделы информации</h2>
     <div class="sections-grid">
         {% for section in sections %}
         <a href="{% url 'news_site:section' section.slug %}" class="section-card">
             <h3>{{ section.title }}</h3>
-            <p>Доступ к научно-технической информации и документам</p>
+            {% if section.description %}
+            <div class="section-description">{{ section.description }}</div>
+            {% else %}
+            <div class="section-description">Доступ к научно-технической информации и документам</div>
+            {% endif %}
             <div class="section-meta">
                 Категорий: {{ section.categories.count }} | 
                 Новостей: {{ section.news.count }}
@@ -20,13 +21,12 @@
         {% empty %}
         <div class="section-card">
             <h3>Разделы не найдены</h3>
-            <p>В данный момент разделы находятся в процессе наполнения</p>
+            <div class="section-description">В данный момент разделы находятся в процессе наполнения</div>
         </div>
         {% endfor %}
     </div>
 </section>
 
-<!-- Последние новости -->
 <section class="news-section">
     <h2 class="section-title">Последние новости</h2>
     <div class="news-list">
@@ -34,18 +34,14 @@
         <div class="news-item">
             <div class="news-header">
                 <h3 class="news-title">
-                    <a href="{% url 'news_site:news_detail' news_item.id %}" style="color: inherit; text-decoration: none;">
-                        {{ news_item.title }}
-                    </a>
+                    <a href="{% url 'news_site:news_detail' news_item.id %}">{{ news_item.title }}</a>
                 </h3>
                 <div class="news-date">{{ news_item.created_at|date:"d.m.Y H:i" }}</div>
             </div>
             
             <div class="news-path">
                 Раздел: 
-                <a href="{% url 'news_site:section' news_item.section.slug %}">
-                    {{ news_item.section.title }}
-                </a>
+                <a href="{% url 'news_site:section' news_item.section.slug %}">{{ news_item.section.title }}</a>
                 {% if news_item.category %}
                 → 
                 <a href="{% url 'news_site:category' news_item.section.slug news_item.category.get_path %}">
@@ -57,8 +53,7 @@
             {% if news_item.files.all %}
             <div class="news-files">
                 {% for file in news_item.files.all %}
-                <a href="{% url 'news_site:tracked_download' file.id %}" 
-                    class="file-badge">
+                <a href="{% url 'news_site:tracked_download' file.id %}" class="file-badge">
                     📎 {{ file.filename }}
                 </a>
                 {% endfor %}

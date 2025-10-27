@@ -1,23 +1,29 @@
-# models.py
 from django.db import models
 from django.urls import reverse
-from django.utils import timezone
 
 class Section(models.Model):
-    title = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True)
+    title = models.CharField(max_length=255, verbose_name="Название")
+    slug = models.SlugField(unique=True, verbose_name="URL")
+    description = models.TextField(blank=True, verbose_name="Описание")
 
     def __str__(self):
         return self.title
 
+    class Meta:
+        verbose_name = "Раздел"
+        verbose_name_plural = "Разделы"
+
 class Category(models.Model):
-    section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='categories')
-    title = models.CharField(max_length=255)
-    slug = models.SlugField()
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
+    section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='categories', verbose_name="Раздел")
+    title = models.CharField(max_length=255, verbose_name="Название")
+    slug = models.SlugField(verbose_name="URL")
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children', verbose_name="Родительская категория")
+    description = models.TextField(blank=True, verbose_name="Описание")
 
     class Meta:
         unique_together = ('section', 'slug', 'parent')
+        verbose_name = "Категория"
+        verbose_name_plural = "Категории"
 
     def __str__(self):
         return self.get_full_path()
@@ -39,19 +45,24 @@ class Category(models.Model):
         return "/".join(path)
 
 class News(models.Model):
-    section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='news')
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True, related_name='news')
-    title = models.CharField(max_length=255)
-    content = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='news', verbose_name="Раздел")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True, related_name='news', verbose_name="Категория")
+    title = models.CharField(max_length=255, verbose_name="Заголовок")
+    content = models.TextField(blank=True, verbose_name="Содержание")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
 
     def __str__(self):
         return self.title
 
+    class Meta:
+        verbose_name = "Новость"
+        verbose_name_plural = "Новости"
+        ordering = ['-created_at']
+
 class NewsFile(models.Model):
-    news = models.ForeignKey(News, on_delete=models.CASCADE, related_name='files')
-    file = models.FileField(upload_to='news_files/')
-    filename = models.CharField(max_length=255, blank=True)
+    news = models.ForeignKey(News, on_delete=models.CASCADE, related_name='files', verbose_name="Новость")
+    file = models.FileField(upload_to='news_files/', verbose_name="Файл")
+    filename = models.CharField(max_length=255, blank=True, verbose_name="Имя файла")
 
     def save(self, *args, **kwargs):
         if not self.filename:
@@ -61,23 +72,31 @@ class NewsFile(models.Model):
     def __str__(self):
         return self.filename
 
+    class Meta:
+        verbose_name = "Файл новости"
+        verbose_name_plural = "Файлы новостей"
+
 class ViewStatistic(models.Model):
-    ip_address = models.GenericIPAddressField()
-    user_agent = models.TextField(blank=True)
-    path = models.CharField(max_length=500)
-    section = models.ForeignKey(Section, on_delete=models.SET_NULL, null=True, blank=True)
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
-    news = models.ForeignKey(News, on_delete=models.SET_NULL, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    ip_address = models.GenericIPAddressField(verbose_name="IP-адрес")
+    user_agent = models.TextField(blank=True, verbose_name="User Agent")
+    path = models.CharField(max_length=500, verbose_name="Путь")
+    section = models.ForeignKey(Section, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Раздел")
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Категория")
+    news = models.ForeignKey(News, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Новость")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
 
     class Meta:
+        verbose_name = "Статистика просмотров"
+        verbose_name_plural = "Статистика просмотров"
         ordering = ['-created_at']
 
 class DownloadStatistic(models.Model):
-    news_file = models.ForeignKey(NewsFile, on_delete=models.CASCADE)
-    ip_address = models.GenericIPAddressField()
-    user_agent = models.TextField(blank=True)
-    downloaded_at = models.DateTimeField(auto_now_add=True)
+    news_file = models.ForeignKey(NewsFile, on_delete=models.CASCADE, verbose_name="Файл")
+    ip_address = models.GenericIPAddressField(verbose_name="IP-адрес")
+    user_agent = models.TextField(blank=True, verbose_name="User Agent")
+    downloaded_at = models.DateTimeField(auto_now_add=True, verbose_name="Время скачивания")
 
     class Meta:
+        verbose_name = "Статистика скачиваний"
+        verbose_name_plural = "Статистика скачиваний"
         ordering = ['-downloaded_at']

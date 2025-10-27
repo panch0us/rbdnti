@@ -1,3 +1,4 @@
+<!-- [file name]: news_site/templates/news_site/base.html -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -7,29 +8,28 @@
     <link rel="stylesheet" href="/static/news_site/css/style.css">
 </head>
 <body>
-    <!-- Header -->
     <header class="header-banner">
         <div class="header-content">
             <div class="header-logo">
-                🛡️ ГЕРБ<br>УМВД
+                <img src="/static/news_site/images/orel_mvd.gif" alt="Герб УМВД" class="logo-image">
             </div>
             <div class="header-title">
                 <h1>Региональный банк данных научно-технической информации</h1>
                 <p>УМВД России по Брянской области</p>
             </div>
-            <div class="header-logo">
-                🇷🇺 ФЛАГ<br>РОССИИ
+            <div class="header-actions">
+                <a href="{% url 'news_site:search_news' %}" class="search-icon-link" title="Поиск">
+                    🔍
+                </a>
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="main-content">
         {% block content %}
         {% endblock %}
     </main>
 
-    <!-- Ticker -->
     <div class="ticker-container">
         <div class="ticker-content">
             {% for quote in ticker_quotes %}
@@ -38,10 +38,11 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="footer">
-        <p>&copy; <span id="current-year">2025</span> ИЦ УМВД России по Брянской области</p>
-        <p><a href="{% url 'news_site:statistics' %}" style="color: white;">Статистика</a></p>
+        <p>&copy; <span id="current-year">2024</span> ИЦ УМВД России по Брянской области</p>
+        <p><a href="{% url 'news_site:statistics' %}">Статистика</a></p>
     </footer>
+
+    <script src="/static/news_site/js/year.js"></script>
 </body>
 </html>

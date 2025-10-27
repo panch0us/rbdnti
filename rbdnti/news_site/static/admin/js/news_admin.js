@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const categoryField = document.getElementById('id_category');
     
     if (sectionField && categoryField) {
-        function loadCategories(sectionId) {
+        function loadCategories(sectionId, selectedCategoryId = null) {
             if (!sectionId) {
                 categoryField.innerHTML = '<option value="">---------</option>';
                 return;
@@ -19,6 +19,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         const option = document.createElement('option');
                         option.value = item.id;
                         option.textContent = item.title;
+                        
+                        // Если это редактирование существующей новости, выбираем текущую категорию
+                        if (selectedCategoryId && item.id == selectedCategoryId) {
+                            option.selected = true;
+                        }
+                        
                         categoryField.appendChild(option);
                     });
                 })
@@ -31,8 +37,10 @@ document.addEventListener('DOMContentLoaded', function() {
             loadCategories(this.value);
         });
         
+        // Инициализация при загрузке страницы
         if (sectionField.value) {
-            loadCategories(sectionField.value);
+            const selectedCategoryId = categoryField.value; // Получаем текущее значение категории
+            loadCategories(sectionField.value, selectedCategoryId);
         }
     }
 });

@@ -3,22 +3,25 @@
 {% block title %}{{ section.title }} - {{ category.title }}{% endblock %}
 
 {% block content %}
-<!-- Хлебные крошки -->
 <nav class="breadcrumb">
     <a href="{% url 'news_site:index' %}">Главная</a> 
-    <span style="margin: 0 10px;">/</span>
+    <span>/</span>
     <a href="{% url 'news_site:section' section.slug %}">{{ section.title }}</a>
-    <span style="margin: 0 10px;">/</span>
+    <span>/</span>
     <span>{{ category.get_full_path }}</span>
 </nav>
 
-<!-- Заголовок категории -->
 <h1 class="section-title">{{ category.title }}</h1>
 
-<!-- Подкатегории -->
+{% if category.description %}
+<div class="category-tree">
+    <div class="category-description">{{ category.description }}</div>
+</div>
+{% endif %}
+
 {% if subcategories %}
 <div class="category-tree">
-    <h3 style="margin-bottom: 20px; color: var(--primary-color);">Подкатегории</h3>
+    <h3>Подкатегории</h3>
     
     <div class="subcategories">
         {% for subcategory in subcategories %}
@@ -26,10 +29,11 @@
             <a href="{% url 'news_site:category' section.slug subcategory.get_path %}" class="category-link">
                 <div class="category-header">
                     <h4 class="category-title">{{ subcategory.title }}</h4>
-                    <div class="category-meta">
-                        Новостей: {{ subcategory.news.count }}
-                    </div>
+                    <div class="category-meta">Новостей: {{ subcategory.news.count }}</div>
                 </div>
+                {% if subcategory.description %}
+                <div class="category-description">{{ subcategory.description }}</div>
+                {% endif %}
             </a>
         </div>
         {% endfor %}
@@ -37,18 +41,15 @@
 </div>
 {% endif %}
 
-<!-- Новости категории -->
 {% if news %}
 <div class="news-section">
-    <h3 style="margin-bottom: 20px; color: var(--primary-color);">Новости категории</h3>
+    <h3>Новости категории</h3>
     <div class="news-list">
         {% for news_item in news %}
         <div class="news-item">
             <div class="news-header">
                 <h4 class="news-title">
-                    <a href="{% url 'news_site:news_detail' news_item.id %}" style="color: inherit; text-decoration: none;">
-                        {{ news_item.title }}
-                    </a>
+                    <a href="{% url 'news_site:news_detail' news_item.id %}">{{ news_item.title }}</a>
                 </h4>
                 <div class="news-date">{{ news_item.created_at|date:"d.m.Y H:i" }}</div>
             </div>
@@ -60,8 +61,7 @@
             {% if news_item.files.all %}
             <div class="news-files">
                 {% for file in news_item.files.all %}
-                <a href="{% url 'news_site:tracked_download' file.id %}" 
-                    class="file-badge">
+                <a href="{% url 'news_site:tracked_download' file.id %}" class="file-badge">
                     📎 {{ file.filename }}
                 </a>
                 {% endfor %}

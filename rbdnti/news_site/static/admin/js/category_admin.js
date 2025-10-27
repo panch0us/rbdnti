@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const parentField = document.getElementById('id_parent');
     
     if (sectionField && parentField) {
-        function loadCategories(sectionId, excludeId = null) {
+        function loadCategories(sectionId, excludeId = null, selectedParentId = null) {
             if (!sectionId) {
                 parentField.innerHTML = '<option value="">---------</option>';
                 return;
@@ -24,6 +24,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         const option = document.createElement('option');
                         option.value = item.id;
                         option.textContent = item.title;
+                        
+                        // Если это редактирование существующей категории, выбираем текущего родителя
+                        if (selectedParentId && item.id == selectedParentId) {
+                            option.selected = true;
+                        }
+                        
                         parentField.appendChild(option);
                     });
                 })
@@ -38,9 +44,13 @@ document.addEventListener('DOMContentLoaded', function() {
             loadCategories(sectionId, currentCategoryId);
         });
         
+        // Инициализация при загрузке страницы
         if (sectionField.value) {
             const currentCategoryId = document.getElementById('id_id') ? document.getElementById('id_id').value : null;
-            loadCategories(sectionField.value, currentCategoryId);
+            const selectedParentId = parentField.value; // Получаем текущее значение родительской категории
+            
+            // Загружаем категории с учетом текущего выбранного родителя
+            loadCategories(sectionField.value, currentCategoryId, selectedParentId);
         }
     }
 });

@@ -104,3 +104,5 @@ class StatisticsMiddleware:
             except Category.DoesNotExist:
                 return None
         return category
+    
+    

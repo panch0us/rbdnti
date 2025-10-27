@@ -3,22 +3,20 @@
 {% block title %}{{ news.title }} - РБД НТИ{% endblock %}
 
 {% block content %}
-<!-- Хлебные крошки -->
 <nav class="breadcrumb">
     <a href="{% url 'news_site:index' %}">Главная</a> 
-    <span style="margin: 0 10px;">/</span>
+    <span>/</span>
     <a href="{% url 'news_site:section' news.section.slug %}">{{ news.section.title }}</a>
     {% if news.category %}
-    <span style="margin: 0 10px;">/</span>
+    <span>/</span>
     <a href="{% url 'news_site:category' news.section.slug news.category.get_path %}">
         {{ news.category.get_full_path }}
     </a>
     {% endif %}
-    <span style="margin: 0 10px;">/</span>
+    <span>/</span>
     <span>{{ news.title }}</span>
 </nav>
 
-<!-- Заголовок новости -->
 <article class="news-detail">
     <header class="news-header-detail">
         <h1 class="news-title-detail">{{ news.title }}</h1>
@@ -42,73 +40,56 @@
         </div>
     </header>
 
-    <!-- Содержание новости -->
     <div class="news-content-detail">
         {% if news.content %}
-            {{ news.content|linebreaks }}
+            {{ news.content|urlize|linebreaks }}
         {% else %}
             <p class="no-content">К этой новости пока нет дополнительного описания.</p>
         {% endif %}
     </div>
 
-    <!-- Прикрепленные файлы -->
-{% if news.files.all %}
-<section class="files-section">
-    <h3 class="files-title">
-        <span class="file-icon">📎</span>
-        Прикрепленные файлы ({{ news.files.count }})
-    </h3>
-    <div class="files-grid">
-        {% for file in news.files.all %}
-        <div class="file-card">
-            <div class="file-icon-large">📄</div>
-            <div class="file-info">
-                <h4 class="file-name">{{ file.filename }}</h4>
-                {% if file.description %}
-                <div class="file-description">{{ file.description }}</div>
-                {% endif %}
-                <div class="file-meta">
-                    {% if file.file.size %}
-                    <span class="file-size">{{ file.file.size|filesizeformat }}</span>
+    {% if news.files.all %}
+    <section class="files-section">
+        <h3 class="files-title">
+            <span class="file-icon">📎</span>
+            Прикрепленные файлы ({{ news.files.count }})
+        </h3>
+        <div class="files-grid">
+            {% for file in news.files.all %}
+            <div class="file-card">
+                <div class="file-icon-large">📄</div>
+                <div class="file-info">
+                    <h4 class="file-name">{{ file.filename }}</h4>
+                    {% if file.description %}
+                    <div class="file-description">{{ file.description }}</div>
                     {% endif %}
-                    <span class="file-type">{{ file.filename|slice:'-4:'|upper }}</span>
+                    <div class="file-meta">
+                        {% if file.file.size %}
+                        <span class="file-size">{{ file.file.size|filesizeformat }}</span>
+                        {% endif %}
+                        <span class="file-type">{{ file.filename|slice:'-4:'|upper }}</span>
+                    </div>
                 </div>
+                <a href="{% url 'news_site:tracked_download' file.id %}" class="download-btn">
+                    <span class="download-icon">⬇️</span>
+                    Скачать
+                </a>
             </div>
-            <a href="{% url 'news_site:tracked_download' file.id %}" class="download-btn">
-                <span class="download-icon">⬇️</span>
-                Скачать
-            </a>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
-</section>
-{% endif %}
+    </section>
+    {% endif %}
 
-    <!-- Навигация -->
     <footer class="news-navigation">
-        <a href="javascript:history.back()" class="nav-btn back-btn">
-            ← Назад
-        </a>
+        <a href="javascript:history.back()" class="nav-btn back-btn">← Назад</a>
         <div class="nav-actions">
-            <a href="{% url 'news_site:index' %}" class="nav-btn home-btn">
-                🏠 Главная
-            </a>
+            <a href="{% url 'news_site:index' %}" class="nav-btn home-btn">🏠 Главная</a>
             {% if news.category %}
-            <a href="{% url 'news_site:category' news.section.slug news.category.get_path %}" class="nav-btn category-btn">
-                📂 Категория
-            </a>
+            <a href="{% url 'news_site:category' news.section.slug news.category.get_path %}" class="nav-btn category-btn">📂 Категория</a>
             {% else %}
-            <a href="{% url 'news_site:section' news.section.slug %}" class="nav-btn section-btn">
-                📁 Раздел
-            </a>
+            <a href="{% url 'news_site:section' news.section.slug %}" class="nav-btn section-btn">📁 Раздел</a>
             {% endif %}
         </div>
     </footer>
 </article>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('News detail page loaded');
-});
-</script>
 {% endblock %}

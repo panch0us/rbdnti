@@ -6,6 +6,7 @@ app_name = 'news_site'
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('search/', views.search_news, name='search_news'),  # ДОБАВИТЬ эту строку
     path('statistics/', views.statistics_view, name='statistics'),
     path('download/<int:file_id>/', views.tracked_download, name='tracked_download'),
     # СНАЧАЛА конкретные пути, ПОТОМ общие

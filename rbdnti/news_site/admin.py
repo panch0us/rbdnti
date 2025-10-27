@@ -98,6 +98,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
+        # Ограничиваем queryset для родительской категории только категориями из того же раздела
         if obj and obj.section:
             form.base_fields['parent'].queryset = Category.objects.filter(section=obj.section)
         return form

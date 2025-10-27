@@ -102,6 +102,67 @@ def news_detail(request, news_id):
         'ticker_quotes': ticker_quotes
     })
 
+def search_news(request):
+    """Поиск новостей по заголовку и содержанию"""
+    query = request.GET.get('q', '').strip()
+    section_filter = request.GET.get('section', '')
+    category_filter = request.GET.get('category', '')
+    
+    news_list = News.objects.select_related('section', 'category').prefetch_related('files').all()
+    
+    # Применяем поисковый запрос
+    if query:
+        news_list = news_list.filter(
+            Q(title__icontains=query) | 
+            Q(content__icontains=query)
+        )
+    
+    # Фильтрация по разделу
+    if section_filter:
+        news_list = news_list.filter(section__slug=section_filter)
+    
+    # Фильтрация по категории
+    if category_filter:
+        news_list = news_list.filter(category__id=category_filter)
+    
+    # Сортировка по дате
+    news_list = news_list.order_by('-created_at')
+    
+    # Получаем все разделы для фильтра
+    sections = Section.objects.all()
+    
+    # Получаем категории для выбранного раздела
+    categories = Category.objects.all()
+    if section_filter:
+        categories = categories.filter(section__slug=section_filter)
+    
+    # Находим выбранные раздел и категорию для отображения в результатах
+    selected_section = None
+    selected_category = None
+    
+    if section_filter:
+        selected_section = Section.objects.filter(slug=section_filter).first()
+    
+    if category_filter:
+        selected_category = Category.objects.filter(id=category_filter).first()
+    
+    ticker_quotes = get_ticker_quotes()
+    
+    context = {
+        'news_list': news_list,
+        'query': query,
+        'section_filter': section_filter,
+        'category_filter': category_filter,
+        'sections': sections,
+        'categories': categories,
+        'selected_section': selected_section,
+        'selected_category': selected_category,
+        'ticker_quotes': ticker_quotes,
+        'results_count': news_list.count(),
+    }
+    
+    return render(request, 'news_site/search_results.html', context)
+
 def statistics_view(request):
     """Страница статистики - упрощенная версия"""
     # Получаем параметры фильтрации
