@@ -1,3 +1,4 @@
+<!-- base.html -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -41,10 +42,11 @@
     <!-- Footer -->
     <footer class="footer">
         <p>&copy; 2024 ИЦ УМВД России по Брянской области</p>
+        <p><a href="{% url 'news_site:statistics' %}" style="color: white;">Статистика</a></p>
     </footer>
 
     <script>
-        // Автоматическое обновление года в футере
+        // Только автообновление года
         document.addEventListener('DOMContentLoaded', function() {
             const yearElement = document.querySelector('.footer p');
             if (yearElement) {

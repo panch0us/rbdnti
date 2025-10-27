@@ -1,5 +1,7 @@
+# models.py
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 
 class Section(models.Model):
     title = models.CharField(max_length=255)
@@ -46,9 +48,6 @@ class News(models.Model):
     def __str__(self):
         return self.title
 
-    def get_absolute_url(self):
-        return reverse('news_detail', args=[str(self.id)])
-
 class NewsFile(models.Model):
     news = models.ForeignKey(News, on_delete=models.CASCADE, related_name='files')
     file = models.FileField(upload_to='news_files/')
@@ -60,7 +59,25 @@ class NewsFile(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.filename or self.file.name
+        return self.filename
 
-    def get_absolute_url(self):
-        return self.file.url
+class ViewStatistic(models.Model):
+    ip_address = models.GenericIPAddressField()
+    user_agent = models.TextField(blank=True)
+    path = models.CharField(max_length=500)
+    section = models.ForeignKey(Section, on_delete=models.SET_NULL, null=True, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    news = models.ForeignKey(News, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+class DownloadStatistic(models.Model):
+    news_file = models.ForeignKey(NewsFile, on_delete=models.CASCADE)
+    ip_address = models.GenericIPAddressField()
+    user_agent = models.TextField(blank=True)
+    downloaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-downloaded_at']

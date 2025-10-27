@@ -52,377 +52,63 @@
     </div>
 
     <!-- Прикрепленные файлы -->
-    {% if news.files.all %}
-    <section class="files-section">
-        <h3 class="files-title">
-            <i class="file-icon">📎</i>
-            Прикрепленные файлы ({{ news.files.count }})
-        </h3>
-        <div class="files-grid">
-            {% for file in news.files.all %}
-            <div class="file-card">
-                <div class="file-icon-large">📄</div>
-                <div class="file-info">
-                    <h4 class="file-name">{{ file.filename }}</h4>
-                    <div class="file-meta">
-                        {% if file.file.size %}
-                        <span class="file-size">{{ file.file.size|filesizeformat }}</span>
-                        {% endif %}
-                        <span class="file-type">{{ file.filename|slice:'-4:'|upper }}</span>
-                    </div>
+{% if news.files.all %}
+<section class="files-section">
+    <h3 class="files-title">
+        <span class="file-icon">📎</span>
+        Прикрепленные файлы ({{ news.files.count }})
+    </h3>
+    <div class="files-grid">
+        {% for file in news.files.all %}
+        <div class="file-card">
+            <div class="file-icon-large">📄</div>
+            <div class="file-info">
+                <h4 class="file-name">{{ file.filename }}</h4>
+                {% if file.description %}
+                <div class="file-description">{{ file.description }}</div>
+                {% endif %}
+                <div class="file-meta">
+                    {% if file.file.size %}
+                    <span class="file-size">{{ file.file.size|filesizeformat }}</span>
+                    {% endif %}
+                    <span class="file-type">{{ file.filename|slice:'-4:'|upper }}</span>
                 </div>
-                <a href="{{ file.file.url }}" download class="download-btn">
-                    <span class="download-icon">⬇️</span>
-                    Скачать
-                </a>
             </div>
-            {% endfor %}
+            <a href="{% url 'news_site:tracked_download' file.id %}" class="download-btn">
+                <span class="download-icon">⬇️</span>
+                Скачать
+            </a>
         </div>
-    </section>
-    {% endif %}
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
 
     <!-- Навигация -->
     <footer class="news-navigation">
         <a href="javascript:history.back()" class="nav-btn back-btn">
-            ← Назад к списку
+            ← Назад
         </a>
         <div class="nav-actions">
             <a href="{% url 'news_site:index' %}" class="nav-btn home-btn">
-                🏠 На главную
+                🏠 Главная
             </a>
             {% if news.category %}
             <a href="{% url 'news_site:category' news.section.slug news.category.get_path %}" class="nav-btn category-btn">
-                📂 К категории
+                📂 Категория
             </a>
             {% else %}
             <a href="{% url 'news_site:section' news.section.slug %}" class="nav-btn section-btn">
-                📁 К разделу
+                📁 Раздел
             </a>
             {% endif %}
         </div>
     </footer>
 </article>
 
-<style>
-.news-detail {
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-    overflow: hidden;
-    margin-bottom: 30px;
-}
-
-.news-header-detail {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: white;
-    padding: 30px;
-    border-bottom: 3px solid var(--accent-color);
-}
-
-.news-title-detail {
-    font-size: 2rem;
-    margin-bottom: 20px;
-    line-height: 1.3;
-    font-weight: bold;
-}
-
-.news-meta {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
-    font-size: 0.95rem;
-}
-
-.meta-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.meta-item a {
-    color: var(--light-color);
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-    transition: border-color 0.3s ease;
-}
-
-.meta-item a:hover {
-    border-bottom-color: var(--light-color);
-}
-
-.news-content-detail {
-    padding: 40px 30px;
-    line-height: 1.8;
-    font-size: 1.1rem;
-    color: #444;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.news-content-detail p {
-    margin-bottom: 1.5em;
-}
-
-.news-content-detail p:last-child {
-    margin-bottom: 0;
-}
-
-.no-content {
-    text-align: center;
-    color: #888;
-    font-style: italic;
-    padding: 40px 0;
-}
-
-.files-section {
-    padding: 30px;
-    background: #f8f9fa;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.files-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--primary-color);
-    margin-bottom: 25px;
-    font-size: 1.3rem;
-}
-
-.file-icon {
-    font-size: 1.5rem;
-}
-
-.files-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-}
-
-.file-card {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    border: 1px solid var(--border-color);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.file-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-}
-
-.file-icon-large {
-    font-size: 2rem;
-    flex-shrink: 0;
-}
-
-.file-info {
-    flex-grow: 1;
-}
-
-.file-name {
-    font-weight: bold;
-    color: var(--primary-color);
-    margin-bottom: 5px;
-    word-break: break-word;
-}
-
-.file-meta {
-    display: flex;
-    gap: 15px;
-    font-size: 0.85rem;
-    color: #666;
-}
-
-.file-size {
-    background: var(--light-color);
-    padding: 2px 8px;
-    border-radius: 12px;
-}
-
-.file-type {
-    background: #e3f2fd;
-    color: #1976d2;
-    padding: 2px 8px;
-    border-radius: 12px;
-}
-
-.download-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--accent-color);
-    color: white;
-    padding: 10px 15px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-    flex-shrink: 0;
-}
-
-.download-btn:hover {
-    background: #c0392b;
-    color: white;
-    text-decoration: none;
-}
-
-.download-icon {
-    font-size: 1.1rem;
-}
-
-.news-navigation {
-    padding: 25px 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: white;
-}
-
-.nav-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 20px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
-}
-
-.back-btn {
-    background: var(--light-color);
-    color: var(--primary-color);
-    border-color: var(--border-color);
-}
-
-.back-btn:hover {
-    background: #e9ecef;
-    text-decoration: none;
-}
-
-.nav-actions {
-    display: flex;
-    gap: 15px;
-}
-
-.home-btn {
-    background: var(--primary-color);
-    color: white;
-}
-
-.home-btn:hover {
-    background: var(--secondary-color);
-    color: white;
-    text-decoration: none;
-}
-
-.category-btn, .section-btn {
-    background: var(--accent-color);
-    color: white;
-}
-
-.category-btn:hover, .section-btn:hover {
-    background: #c0392b;
-    color: white;
-    text-decoration: none;
-}
-
-/* Адаптивность */
-@media (max-width: 768px) {
-    .news-header-detail {
-        padding: 20px;
-    }
-    
-    .news-title-detail {
-        font-size: 1.5rem;
-    }
-    
-    .news-meta {
-        grid-template-columns: 1fr;
-    }
-    
-    .news-content-detail {
-        padding: 25px 20px;
-        font-size: 1rem;
-    }
-    
-    .files-section {
-        padding: 20px;
-    }
-    
-    .files-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .file-card {
-        flex-direction: column;
-        text-align: center;
-        gap: 10px;
-    }
-    
-    .news-navigation {
-        flex-direction: column;
-        gap: 15px;
-        align-items: stretch;
-    }
-    
-    .nav-actions {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .nav-btn {
-        justify-content: center;
-    }
-}
-
-@media (max-width: 480px) {
-    .news-title-detail {
-        font-size: 1.3rem;
-    }
-    
-    .file-card {
-        padding: 15px;
-    }
-    
-    .download-btn {
-        padding: 8px 12px;
-        font-size: 0.9rem;
-    }
-}
-</style>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Добавляем красивый эффект при загрузке
-    const newsDetail = document.querySelector('.news-detail');
-    if (newsDetail) {
-        newsDetail.style.opacity = '0';
-        newsDetail.style.transform = 'translateY(20px)';
-        
-        setTimeout(() => {
-            newsDetail.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-            newsDetail.style.opacity = '1';
-            newsDetail.style.transform = 'translateY(0)';
-        }, 100);
-    }
-    
-    // Подсветка файлов при наведении
-    const fileCards = document.querySelectorAll('.file-card');
-    fileCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.borderColor = 'var(--accent-color)';
-        });
-        
-        card.addEventListener('mouseleave', function() {
-            this.style.borderColor = 'var(--border-color)';
-        });
-    });
+    console.log('News detail page loaded');
 });
 </script>
 {% endblock %}

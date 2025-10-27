@@ -57,7 +57,8 @@
             {% if news_item.files.all %}
             <div class="news-files">
                 {% for file in news_item.files.all %}
-                <a href="{{ file.file.url }}" download class="file-badge">
+                <a href="{% url 'news_site:tracked_download' file.id %}" 
+                    class="file-badge">
                     📎 {{ file.filename }}
                 </a>
                 {% endfor %}
