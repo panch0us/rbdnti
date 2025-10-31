@@ -53,7 +53,7 @@ def tracked_download(request, file_id):
 
 def index(request):
     sections = Section.objects.all()
-    latest_news = News.objects.select_related('section', 'category').prefetch_related('files').order_by('-created_at')[:5]
+    latest_news = News.objects.select_related('section', 'category').prefetch_related('files').order_by('-created_at')[:3]
     ticker_quotes = get_ticker_quotes()
     
     return render(request, 'news_site/index.html', {

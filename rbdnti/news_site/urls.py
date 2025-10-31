@@ -9,7 +9,6 @@ urlpatterns = [
     path('statistics/', views.statistics_view, name='statistics'),
     path('download/<int:file_id>/', views.tracked_download, name='tracked_download'),
     path('news/<int:news_id>/', views.news_detail, name='news_detail'),
-    # ✅ Изменяем URL - убираем 'admin/' из пути
     path('ckeditor-files/', views.ckeditor_files_view, name='ckeditor_files'),
     path('delete-ckeditor-file/', views.delete_ckeditor_file, name='delete_ckeditor_file'),
     path('<slug:section_slug>/', views.section_view, name='section'),
