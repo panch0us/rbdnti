@@ -9,8 +9,11 @@ class StatisticsMiddleware:
     def __call__(self, request):
         response = self.get_response(request)
         
-        # Собираем статистику только для GET запросов
-        if request.method == 'GET' and not request.path.startswith('/admin/'):
+        # ✅ Пропускаем CKEditor и админку
+        if (request.method == 'GET' and 
+            not request.path.startswith('/admin/') and
+            not request.path.startswith('/ckeditor/') and
+            not request.path.startswith('/static/')):
             self.track_view(request)
             
         return response
@@ -21,7 +24,7 @@ class StatisticsMiddleware:
             path = request.path
             
             # Пропускаем статику и служебные пути
-            if any(path.startswith(p) for p in ['/static/', '/admin/', '/favicon.ico']):
+            if any(path.startswith(p) for p in ['/static/', '/admin/', '/favicon.ico', '/ckeditor/']):
                 return
                 
             ip = self.get_client_ip(request)
@@ -104,5 +107,3 @@ class StatisticsMiddleware:
             except Category.DoesNotExist:
                 return None
         return category
-    
-    

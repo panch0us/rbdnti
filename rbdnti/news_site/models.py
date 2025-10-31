@@ -1,5 +1,6 @@
 from django.db import models
-from django.urls import reverse
+from ckeditor.fields import RichTextField  # ✅ Импортируем RichTextField
+from ckeditor_uploader.fields import RichTextUploadingField  # ✅ Для расширенного редактирования
 
 class Section(models.Model):
     title = models.CharField(max_length=255, verbose_name="Название")
@@ -48,7 +49,8 @@ class News(models.Model):
     section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='news', verbose_name="Раздел")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True, related_name='news', verbose_name="Категория")
     title = models.CharField(max_length=255, verbose_name="Заголовок")
-    content = models.TextField(blank=True, verbose_name="Содержание")
+    # ✅ Заменяем обычное TextField на RichTextUploadingField
+    content = RichTextUploadingField(blank=True, verbose_name="Содержание")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
 
     def __str__(self):

@@ -53,11 +53,11 @@
                 </h4>
                 <div class="news-date">{{ news_item.created_at|date:"d.m.Y H:i" }}</div>
             </div>
-            
+            <!--
             <div class="news-content">
                 {{ news_item.content|linebreaks|truncatewords:50 }}
             </div>
-            
+            -->
             {% if news_item.files.all %}
             <div class="news-files">
                 {% for file in news_item.files.all %}

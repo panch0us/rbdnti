@@ -1,4 +1,5 @@
 {% extends "news_site/base.html" %}
+{% load static %}
 
 {% block title %}{{ news.title }} - РБД НТИ{% endblock %}
 
@@ -42,7 +43,8 @@
 
     <div class="news-content-detail">
         {% if news.content %}
-            {{ news.content|urlize|linebreaks }}
+            {# ✅ Используем safe для отображения HTML-контента из CKEditor #}
+            {{ news.content|safe }}
         {% else %}
             <p class="no-content">К этой новости пока нет дополнительного описания.</p>
         {% endif %}
