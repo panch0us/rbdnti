@@ -5,17 +5,21 @@
     {{ block.super }}
     <li>
         {% if original %}
-            {# Для существующей новости - активная ссылка #}
             <a href="{% url 'admin:news_upload_files' original.pk %}" class="historylink" style="background: #417690; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;">
                 📁 Массовая загрузка файлов
             </a>
         {% else %}
-            {# Для новой новости - кнопка, которая запускает сохранение #}
             <a href="javascript:void(0)" class="historylink" style="background: #79aec8; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none; cursor: pointer;" 
                onclick="handleMassUploadClick()">
                 📁 Массовая загрузка файлов
             </a>
         {% endif %}
+    </li>
+    <li>
+        {# ✅ Обновляем URL #}
+        <a href="/ckeditor-files/" class="historylink" style="background: #5d8c00; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;">
+            🖼️ Управление файлами CKEditor
+        </a>
     </li>
 {% endblock %}
 
@@ -23,14 +27,12 @@
 {{ block.super }}
 <script>
 function handleMassUploadClick() {
-    // Просто нажимаем кнопку "Сохранить и продолжить редактирование"
     const saveAndContinueBtn = document.querySelector('input[name="_continue"]');
     if (saveAndContinueBtn) {
         saveAndContinueBtn.click();
     }
 }
 
-// Перехватываем отправку формы для новой новости
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('news_form');
     const isNewNews = window.location.href.includes('/add/');
@@ -38,7 +40,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (form && isNewNews) {
         let isMassUpload = false;
         
-        // Вешаем обработчик на кнопку массовой загрузки
         const massUploadBtn = document.querySelector('[onclick="handleMassUploadClick()"]');
         if (massUploadBtn) {
             massUploadBtn.addEventListener('click', function() {
@@ -46,22 +47,15 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
-        // Перехватываем отправку формы
         form.addEventListener('submit', function(e) {
             if (isMassUpload) {
-                // Сохраняем оригинальный action
-                const originalAction = form.action;
-                
-                // Ждем завершения отправки и затем редиректим
                 setTimeout(function() {
-                    // После сохранения страница перезагрузится с ID новости
                     const checkRedirect = setInterval(function() {
                         const currentUrl = window.location.href;
                         const newsIdMatch = currentUrl.match(/\/news\/(\d+)\/change\//);
                         
                         if (newsIdMatch && newsIdMatch[1]) {
                             clearInterval(checkRedirect);
-                            // Переходим к массовой загрузке файлов
                             window.location.href = `/admin/news_site/news/${newsIdMatch[1]}/upload-files/`;
                         }
                     }, 100);

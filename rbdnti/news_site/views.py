@@ -1,4 +1,6 @@
 # views.py
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.utils import timezone
@@ -7,6 +9,8 @@ from django.db.models import Count, Q
 import os
 from django.conf import settings
 from .models import Section, Category, News, NewsFile, ViewStatistic, DownloadStatistic
+
+
 
 def get_ticker_quotes():
     """Загружает цитаты для бегущей строки"""
@@ -251,3 +255,78 @@ def statistics_view(request):
     }
     
     return render(request, 'news_site/statistics.html', context)
+
+@staff_member_required
+def ckeditor_files_view(request):
+    """Просмотр файлов, загруженных через CKEditor с рекурсивным поиском"""
+    ckeditor_upload_path = os.path.join(settings.MEDIA_ROOT, 'news_files/ckeditor_uploads/')
+    
+    def get_files_recursively(directory):
+        """Рекурсивно получаем все файлы из директории и поддиректорий"""
+        all_files = []
+        if os.path.exists(directory):
+            for item in os.listdir(directory):
+                item_path = os.path.join(directory, item)
+                if os.path.isfile(item_path):
+                    # Получаем относительный путь для URL
+                    relative_path = os.path.relpath(item_path, settings.MEDIA_ROOT)
+                    file_url = os.path.join(settings.MEDIA_URL, relative_path)
+                    file_size = os.path.getsize(item_path)
+                    import datetime
+                    file_time = os.path.getctime(item_path)
+                    uploaded_time = datetime.datetime.fromtimestamp(file_time)
+                    
+                    all_files.append({
+                        'name': item,
+                        'path': item_path,
+                        'url': file_url,
+                        'size': file_size,
+                        'uploaded': uploaded_time,
+                        'relative_path': relative_path
+                    })
+                elif os.path.isdir(item_path):
+                    # Рекурсивно ищем файлы в поддиректориях
+                    all_files.extend(get_files_recursively(item_path))
+        return all_files
+    
+    # Получаем все файлы рекурсивно
+    files = get_files_recursively(ckeditor_upload_path)
+    
+    # Сортируем по дате загрузки (новые сначала)
+    files.sort(key=lambda x: x['uploaded'], reverse=True)
+    
+    context = {
+        'title': 'Файлы CKEditor',
+        'files': files,
+        'media_url': settings.MEDIA_URL,
+        'ticker_quotes': get_ticker_quotes(),
+    }
+    return render(request, 'admin/news_site/ckeditor_files.html', context)
+
+@staff_member_required
+def delete_ckeditor_file(request):
+    """Удаление файла CKEditor"""
+    if request.method == 'POST':
+        filename = request.POST.get('filename')
+        filepath = request.POST.get('filepath')  # Полный путь к файлу
+        
+        if filepath:
+            # Используем полный путь для удаления
+            file_path = os.path.join(settings.MEDIA_ROOT, filepath)
+        elif filename:
+            # Старый способ для обратной совместимости
+            file_path = os.path.join(settings.MEDIA_ROOT, 'news_files/ckeditor_uploads/', filename)
+        else:
+            messages.error(request, 'Не указан файл для удаления')
+            return redirect('news_site:ckeditor_files')
+            
+        try:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                messages.success(request, f'Файл "{os.path.basename(file_path)}" успешно удален')
+            else:
+                messages.error(request, f'Файл не найден: {file_path}')
+        except Exception as e:
+            messages.error(request, f'Ошибка при удалении файла: {str(e)}')
+        
+    return redirect('news_site:ckeditor_files')

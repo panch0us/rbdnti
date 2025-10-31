@@ -1,6 +1,8 @@
 from django.db import models
-from ckeditor.fields import RichTextField  # ✅ Импортируем RichTextField
-from ckeditor_uploader.fields import RichTextUploadingField  # ✅ Для расширенного редактирования
+from ckeditor.fields import RichTextField
+from ckeditor_uploader.fields import RichTextUploadingField
+import os
+from django.utils import timezone
 
 class Section(models.Model):
     title = models.CharField(max_length=255, verbose_name="Название")
@@ -49,7 +51,6 @@ class News(models.Model):
     section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='news', verbose_name="Раздел")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True, related_name='news', verbose_name="Категория")
     title = models.CharField(max_length=255, verbose_name="Заголовок")
-    # ✅ Заменяем обычное TextField на RichTextUploadingField
     content = RichTextUploadingField(blank=True, verbose_name="Содержание")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
 
@@ -65,10 +66,14 @@ class NewsFile(models.Model):
     news = models.ForeignKey(News, on_delete=models.CASCADE, related_name='files', verbose_name="Новость")
     file = models.FileField(upload_to='news_files/', verbose_name="Файл")
     filename = models.CharField(max_length=255, blank=True, verbose_name="Имя файла")
+    # ✅ Добавляем поле created_at
+    created_at = models.DateTimeField(default=timezone.now, verbose_name="Дата создания")
 
     def save(self, *args, **kwargs):
         if not self.filename:
             self.filename = self.file.name
+        if not self.id:  # Только при создании
+            self.created_at = timezone.now()
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -77,6 +82,7 @@ class NewsFile(models.Model):
     class Meta:
         verbose_name = "Файл новости"
         verbose_name_plural = "Файлы новостей"
+        ordering = ['-created_at']
 
 class ViewStatistic(models.Model):
     ip_address = models.GenericIPAddressField(verbose_name="IP-адрес")

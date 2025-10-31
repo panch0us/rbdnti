@@ -1,6 +1,6 @@
 from django.contrib import admin, messages
 from django.urls import path
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.html import format_html
 from django.http import JsonResponse
 from .models import News, NewsFile, Section, Category, DownloadStatistic
@@ -24,7 +24,6 @@ class NewsAdmin(admin.ModelAdmin):
     search_fields = ('title', 'content')
     inlines = [NewsFileInline]
     
-    # ✅ Настройки для CKEditor
     class Media:
         css = {
             'all': ('ckeditor/ckeditor.css',)
@@ -136,9 +135,16 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(NewsFile)
 class NewsFileAdmin(admin.ModelAdmin):
-    list_display = ('filename', 'news', 'file')
-    list_filter = ('news__section',)
+    list_display = ('filename', 'news', 'file', 'download_link', 'created_at')
+    list_filter = ('news__section', 'created_at')
     search_fields = ('filename', 'news__title')
+    readonly_fields = ('download_link', 'created_at')
+    
+    def download_link(self, obj):
+        if obj.file:
+            return format_html('<a href="{}" download>📥 Скачать</a>', obj.file.url)
+        return "-"
+    download_link.short_description = "Скачать"
 
 @admin.register(DownloadStatistic)
 class DownloadStatisticAdmin(admin.ModelAdmin):
