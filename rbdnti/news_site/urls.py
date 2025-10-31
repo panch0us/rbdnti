@@ -11,6 +11,7 @@ urlpatterns = [
     path('news/<int:news_id>/', views.news_detail, name='news_detail'),
     path('ckeditor-files/', views.ckeditor_files_view, name='ckeditor_files'),
     path('delete-ckeditor-file/', views.delete_ckeditor_file, name='delete_ckeditor_file'),
+    path('archive/', views.news_archive, name='news_archive'),
     path('<slug:section_slug>/', views.section_view, name='section'),
     path('<slug:section_slug>/<path:category_path>/', views.category_view, name='category'),
 ]

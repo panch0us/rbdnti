@@ -7,13 +7,44 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 from django.db.models import Count, Q
 import os
+import random
 from django.conf import settings
 from .models import Section, Category, News, NewsFile, ViewStatistic, DownloadStatistic
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
+
+def news_archive(request):
+    """Архив всех новостей с пагинацией"""
+    # Получаем все новости, отсортированные по дате (новые сначала)
+    all_news = News.objects.select_related('section', 'category').prefetch_related('files').order_by('-created_at')
+    
+    # Пагинация - 100 новостей на страницу
+    paginator = Paginator(all_news, 100)
+    page = request.GET.get('page')
+    
+    try:
+        news_list = paginator.page(page)
+    except PageNotAnInteger:
+        # Если page не число, показываем первую страницу
+        news_list = paginator.page(1)
+    except EmptyPage:
+        # Если page вне диапазона, показываем последнюю страницу
+        news_list = paginator.page(paginator.num_pages)
+    
+    ticker_quotes = get_ticker_quotes()
+    
+    context = {
+        'news_list': news_list,
+        'total_news': all_news.count(),
+        'ticker_quotes': ticker_quotes,
+        'title': 'Архив новостей'
+    }
+    return render(request, 'news_site/news_archive.html', context)
 
 
 
 def get_ticker_quotes():
-    """Загружает цитаты для бегущей строки"""
+    """Загружает цитаты для бегущей строки в случайном порядке"""
     quotes_file = os.path.join(settings.BASE_DIR, 'news_site', 'static', 'news_site', 'data', 'quotes.txt')
     
     try:
@@ -23,8 +54,13 @@ def get_ticker_quotes():
         quotes = [
             "Наука - это организованное знание. Герберт Спенсер",
             "Информация - это не знание. Альберт Эйнштейн",
-            "Знание - это сила. Фрэнсис Бэкон"
+            "Знание - это сила. Фрэнсис Бэкон",
+            "Технология - это то, чего не было, когда мы родились. Алан Кей",
+            "Будущее уже наступило, оно просто неравномерно распределено. Уильям Гибсон"
         ]
+    
+    # ✅ Перемешиваем цитаты в случайном порядке
+    random.shuffle(quotes)
     
     return quotes
 

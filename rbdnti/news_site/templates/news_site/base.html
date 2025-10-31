@@ -30,10 +30,13 @@
         {% endblock %}
     </main>
 
+    <!-- Бегущая строка -->
     <div class="ticker-container">
-        <div class="ticker-content">
+        <div class="ticker-track">
             {% for quote in ticker_quotes %}
-            <span class="ticker-item">«{{ quote }}»</span>
+            <div class="ticker-item">
+                <span class="quote-text">«{{ quote }}»</span>
+            </div>
             {% endfor %}
         </div>
     </div>

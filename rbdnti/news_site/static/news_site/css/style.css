@@ -992,27 +992,74 @@ body {
 .ticker-container {
     background: var(--primary);
     color: white;
-    padding: 5px 0;
+    padding: 12px 0;
     overflow: hidden;
+    position: relative;
+    height: 50px;
 }
 
-.ticker-content {
-    display: inline-block;
+.ticker-track {
+    display: flex;
+    animation: simple-ticker 120s linear infinite;
     white-space: nowrap;
-    animation: ticker 30s linear infinite;
-    padding-left: 100%; /* Начальная позиция за пределами экрана */
 }
 
 .ticker-item {
-    display: inline-block;
-    padding: 0 40px;
-    font-size: 1rem;
+    flex: 0 0 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px;
+    box-sizing: border-box;
 }
 
-/* Анимация бегущей строки */
-@keyframes ticker {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-100%); }
+.quote-text {
+    font-size: 1rem;
+    font-style: italic;
+    text-align: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+@keyframes simple-ticker {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(calc(-100% * 7)); /* 7 цитат */
+    }
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .ticker-container {
+        height: 40px;
+        padding: 8px 0;
+    }
+    
+    .quote-text {
+        font-size: 0.9rem;
+        padding: 0 15px;
+    }
+    
+    .ticker-track {
+        animation-duration: 150s; /* Медленнее на мобильных */
+    }
+}
+
+@media (max-width: 480px) {
+    .ticker-container {
+        height: 35px;
+    }
+    
+    .quote-text {
+        font-size: 0.85rem;
+        padding: 0 10px;
+    }
+    
+    .ticker-track {
+        animation-duration: 180s; /* Еще медленнее */
+    }
 }
 
 /* ===== ПОДВАЛ САЙТА ===== */
@@ -1212,4 +1259,35 @@ body {
         text-align: center;
         margin-bottom: 5px;
     }
+}
+
+/* ===== СТИЛИ ДЛЯ ССЫЛКИ НА АРХИВ НА ГЛАВНОЙ ===== */
+
+.archive-link-section {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+.archive-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--primary);
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border);
+    background: white;
+}
+
+.archive-link:hover {
+    background: var(--primary);
+    color: white;
+    text-decoration: none;
+    border-color: var(--primary);
 }

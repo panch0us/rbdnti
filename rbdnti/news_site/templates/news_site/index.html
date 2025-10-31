@@ -66,5 +66,13 @@
         </div>
         {% endfor %}
     </div>
+        <!-- ✅ Добавляем ссылку на архив -->
+    {% if latest_news %}
+    <div class="archive-link-section">
+        <a href="{% url 'news_site:news_archive' %}" class="archive-link">
+            📚 Посмотреть архив всех новостей →
+        </a>
+    </div>
+    {% endif %}
 </section>
 {% endblock %}
