@@ -50,7 +50,7 @@
 # Клонируем проект
 git clone <repository>
 cd rbdnti
-```bash
+```
 # Запускаем разработку
 ./manage.sh dev
 
