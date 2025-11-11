@@ -118,7 +118,7 @@ cd rbdnti-v1
 ### Распаковать новую версию
 ```bash
 tar -xzf rbdnti-offline-20241115.tar.gz
-mv rbdnti-offline-package rbdnti-new
+mv rbdnti-offline-package rbdnti-v2
 ```
 ### Скопировать данные из старой версии
 ```bash
