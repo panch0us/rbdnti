@@ -1,0 +1,1293 @@
+/* ==========================================================================
+   ОСНОВНЫЕ СТИЛИ РБД НТИ - РЕГИОНАЛЬНЫЙ БАНК ДАННЫХ НТИ
+   УМВД России по Брянской области
+   ========================================================================== */
+
+/* ===== ОСНОВНЫЕ ПЕРЕМЕННЫЕ И СБРОС СТИЛЕЙ ===== */
+
+/* CSS переменные для единообразного управления цветами и размерами */
+:root {
+    /* Основные цвета бренда */
+    --primary: #2c3e50;      /* Основной темно-синий цвет */
+    --secondary: #34495e;    /* Вторичный синий цвет */
+    --accent: #e74c3c;       /* Акцентный красный цвет для кнопок и выделения */
+    --light: #ecf0f1;        /* Светлый фон для карточек и блоков */
+    --text: #333;            /* Основной цвет текста */
+    --border: #ddd;          /* Цвет границ и разделителей */
+    --link: #3498db;         /* Цвет ссылок */
+    --link-hover: #2980b9;   /* Цвет ссылок при наведении */
+}
+
+/* Сброс стандартных стилей браузера для consistency */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Упрощает расчет размеров элементов */
+}
+
+/* Основные стили body */
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.5; /* Межстрочный интервал для лучшей читаемости */
+    color: var(--text);
+    background: #f8f9fa; /* Светло-серый фон всей страницы */
+}
+
+/* ===== ШАПКА САЙТА ===== */
+
+/* Основной баннер шапки с градиентом */
+.header-banner {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    padding: 15px 0;
+    position: relative;
+}
+
+/* Контейнер для содержимого шапки */
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px; /* Ограничение максимальной ширины */
+    margin: 0 auto; /* Центрирование */
+    padding: 0 15px; /* Отступы по бокам */
+}
+
+/* Стили для логотипа */
+.header-logo {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    padding: 4px;
+}
+
+/* Изображение логотипа */
+.logo-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Сохранение пропорций изображения */
+}
+
+/* Заголовок в шапке */
+.header-title {
+    text-align: center;
+    flex-grow: 1; /* Занимает все доступное пространство */
+    margin: 0 15px;
+}
+
+.header-title h1 {
+    font-size: 1.3rem;
+    margin-bottom: 3px;
+}
+
+.header-title p {
+    font-size: 0.9rem;
+    opacity: 0.9; /* Легкая прозрачность для подзаголовка */
+}
+
+/* Контейнер для действий в шапке (поиск) */
+.header-actions {
+    display: flex;
+    align-items: center;
+}
+
+/* Стили для иконки поиска */
+.search-icon-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%; /* Круглая форма */
+    text-decoration: none;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+/* Эффекты при наведении на иконку поиска */
+.search-icon-link:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1); /* Легкое увеличение */
+    border-color: var(--light);
+}
+
+/* ===== ОСНОВНОЕ СОДЕРЖИМОЕ ===== */
+
+/* Основной контейнер контента */
+.main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 15px;
+}
+
+/* Заголовки разделов */
+.section-title {
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--primary);
+    font-size: 1.5rem;
+}
+
+/* ===== СТРАНИЦА ПОИСКА ===== */
+
+/* Основной контейнер страницы поиска */
+.search-page {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Герой-секция поиска */
+.search-hero {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.search-hero h1 {
+    color: var(--primary);
+    margin-bottom: 10px;
+    font-size: 2rem;
+}
+
+.search-hero p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+/* Основная форма поиска */
+.search-main-form {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+/* Контейнер для поля ввода поиска */
+.search-input-container {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+/* Поле ввода поиска */
+.search-main-input {
+    width: 100%;
+    padding: 15px 20px;
+    padding-left: 50px; /* Место для иконки */
+    border: 2px solid var(--border);
+    border-radius: 50px; /* Скругленные углы */
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+/* Стили для активного поля ввода */
+.search-main-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1); /* Свечение */
+}
+
+/* Иконка поиска в поле ввода */
+.search-icon-large {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.3rem;
+    color: #666;
+}
+
+/* Кнопка поиска */
+.search-main-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease;
+    display: block;
+    width: 100%;
+}
+
+.search-main-btn:hover {
+    background: #c0392b; /* Темнее при наведении */
+}
+
+/* Кнопка переключения фильтров */
+.search-filters-toggle {
+    background: none;
+    border: none;
+    color: var(--primary);
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin: 15px auto;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.search-filters-toggle:hover {
+    background: #f8f9fa;
+}
+
+/* Контейнер расширенных фильтров */
+.search-filters {
+    display: none; /* Скрыт по умолчанию */
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 15px;
+    border: 1px solid var(--border);
+}
+
+.search-filters.active {
+    display: block; /* Показываем при активации */
+}
+
+/* Строка с фильтрами */
+.filters-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap; /* Перенос на мобильных */
+}
+
+/* Группа фильтров */
+.filter-group {
+    flex: 1;
+    min-width: 200px; /* Минимальная ширина */
+}
+
+.filter-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+/* Выпадающие списки фильтров */
+.filter-select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: white;
+}
+
+/* Быстрый поиск по тегам */
+.quick-search {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.quick-search h3 {
+    color: var(--primary);
+    margin-bottom: 15px;
+}
+
+.quick-search-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Теги быстрого поиска */
+.quick-search-tag {
+    background: var(--light);
+    color: var(--primary);
+    padding: 8px 15px;
+    border-radius: 20px; /* Овальная форма */
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.quick-search-tag:hover {
+    background: var(--accent);
+    color: white;
+    transform: translateY(-2px); /* Эффект поднятия */
+}
+
+/* Секция результатов поиска */
+.search-results-section {
+    background: white;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Заголовок результатов */
+.results-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--border);
+}
+
+.results-header h2 {
+    color: var(--primary);
+    margin-bottom: 8px;
+}
+
+/* Информация о поисковом запросе */
+.search-query-info {
+    color: #666;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Кнопка сброса фильтров */
+.clear-filters {
+    background: #95a5a6;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    text-decoration: none;
+}
+
+.clear-filters:hover {
+    background: #7f8c8d;
+    color: white;
+}
+
+/* Элемент результата поиска */
+.search-result-item {
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+    border-left: 4px solid var(--accent); /* Акцентная полоса слева */
+}
+
+.search-result-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-left-color: var(--primary);
+}
+
+/* Заголовок новости в результатах */
+.news-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.news-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--primary);
+    margin-bottom: 5px;
+    flex-grow: 1;
+}
+
+.news-title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.news-title a:hover {
+    color: var(--accent);
+}
+
+/* Дата новости */
+.news-date {
+    color: #888;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    margin-left: 15px;
+}
+
+/* Путь к новости (раздел → категория) */
+.news-path {
+    color: #666;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+}
+
+.news-path a {
+    color: var(--secondary);
+    text-decoration: none;
+}
+
+.news-path a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+}
+
+/* Превью содержания новости */
+.news-content-preview {
+    color: #555;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 10px 0;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border-left: 3px solid var(--primary);
+}
+
+/* Файлы новости */
+.news-files {
+    margin-top: 10px;
+}
+
+/* Состояния без результатов поиска */
+.no-results, .search-instructions {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.no-results-icon, .instructions-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.no-results h3, .search-instructions h3 {
+    color: var(--primary);
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+}
+
+/* Подсказки по поиску */
+.search-tips {
+    margin-top: 25px;
+    text-align: left;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.search-tips h4 {
+    color: var(--primary);
+    margin-bottom: 10px;
+}
+
+.search-tips ul {
+    margin-top: 8px;
+    padding-left: 20px;
+}
+
+.search-tips li {
+    margin-bottom: 8px;
+    color: #666;
+}
+
+/* ===== ХЛЕБНЫЕ КРОШКИ ===== */
+
+.breadcrumb {
+    background: none;
+    padding: 10px 0;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+}
+
+.breadcrumb a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+    font-weight: 500;
+}
+
+.breadcrumb a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+}
+
+.breadcrumb span {
+    color: #666;
+    margin: 0 8px;
+}
+
+/* ===== СЕТКА РАЗДЕЛОВ НА ГЛАВНОЙ ===== */
+
+.sections-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+/* Карточка раздела */
+.section-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+    border-left: 4px solid var(--accent);
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.section-card:hover {
+    transform: translateY(-2px);
+    text-decoration: none;
+    color: inherit;
+}
+
+.section-card h3 {
+    color: var(--primary);
+    margin-bottom: 8px;
+    font-size: 1.2rem;
+}
+
+.section-description {
+    color: #666;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.section-meta {
+    font-size: 0.85rem;
+    color: #888;
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+}
+
+/* ===== СЕКЦИИ И КАТЕГОРИИ ===== */
+
+.category-tree {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+/* Элемент категории */
+.category-item {
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 10px;
+    transition: background-color 0.2s ease;
+}
+
+.category-item:hover {
+    background-color: #f8f9fa;
+}
+
+.category-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.category-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--primary);
+    margin: 0;
+}
+
+.category-meta {
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.category-description {
+    color: #666;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* Подкатегории */
+.subcategories {
+    margin-top: 10px;
+    padding-left: 15px;
+    border-left: 2px solid var(--border);
+}
+
+.subcategory-item {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.subcategory-item:last-child {
+    border-bottom: none;
+}
+
+/* ===== СЕКЦИЯ СПИСКА НОВОСТЕЙ ===== */
+
+.news-section {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 25px;
+}
+
+.news-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Элемент новости в списке */
+.news-item {
+    padding: 15px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.news-item:hover {
+    background-color: #f8f9fa;
+}
+
+.news-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+}
+
+.news-title {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--primary);
+    margin-bottom: 3px;
+    flex-grow: 1;
+}
+
+.news-title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.news-title a:hover {
+    color: var(--accent);
+}
+
+.news-date {
+    color: #888;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.news-path {
+    color: #666;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+}
+
+.news-path a {
+    color: var(--secondary);
+    text-decoration: none;
+}
+
+.news-path a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+}
+
+.news-content {
+    color: #555;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.news-files {
+    margin-top: 6px;
+}
+
+/* ===== ДЕТАЛЬНАЯ СТРАНИЦА НОВОСТИ ===== */
+
+.news-detail {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+/* Шапка детальной новости */
+.news-header-detail {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    padding: 20px;
+    border-bottom: 3px solid var(--accent);
+}
+
+.news-title-detail {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    line-height: 1.3;
+}
+
+/* Мета-информация новости */
+.news-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    font-size: 0.85rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.meta-item a {
+    color: var(--light);
+    text-decoration: none;
+}
+
+.meta-item a:hover {
+    text-decoration: underline;
+}
+
+/* Содержание новости */
+.news-content-detail {
+    padding: 20px;
+    line-height: 1.6;
+    font-size: 0.95rem;
+    color: #444;
+    border-bottom: 1px solid var(--border);
+}
+
+.news-content-detail p {
+    margin-bottom: 1em;
+}
+
+.news-content-detail p:last-child {
+    margin-bottom: 0;
+}
+
+.no-content {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    padding: 20px 0;
+}
+
+/* ===== ПРИКРЕПЛЕННЫЕ ФАЙЛЫ НОВОСТИ ===== */
+
+.files-section {
+    padding: 20px;
+    background: #f8f9fa;
+    border-bottom: 1px solid var(--border);
+}
+
+.files-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--primary);
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+/* Сетка файлов */
+.files-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 12px;
+}
+
+/* Карточка файла */
+.file-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: white;
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+}
+
+.file-card:hover {
+    transform: translateY(-1px);
+    border-color: var(--accent);
+}
+
+.file-icon-large {
+    font-size: 1.6rem;
+    flex-shrink: 0;
+}
+
+.file-info {
+    flex-grow: 1;
+    min-width: 0; /* Предотвращает переполнение */
+}
+
+.file-name {
+    font-weight: bold;
+    color: var(--primary);
+    margin-bottom: 4px;
+    word-break: break-word;
+    line-height: 1.2;
+    font-size: 0.9rem;
+}
+
+.file-description {
+    color: #666;
+    font-size: 0.8rem;
+    margin-bottom: 6px;
+}
+
+.file-meta {
+    display: flex;
+    gap: 8px;
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.file-size, .file-type {
+    padding: 1px 5px;
+    border-radius: 8px;
+}
+
+.file-size {
+    background: var(--light);
+}
+
+.file-type {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+/* ===== ОСНОВНЫЕ КНОПКИ ===== */
+
+.download-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--accent);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+    font-size: 0.8rem;
+}
+
+.download-btn:hover {
+    background: #c0392b;
+    color: white;
+    text-decoration: none;
+}
+
+/* Бейдж файла в списке новостей */
+.file-badge {
+    display: inline-block;
+    background: var(--light);
+    color: var(--primary);
+    padding: 3px 6px;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    margin-right: 6px;
+    margin-bottom: 3px;
+    text-decoration: none;
+}
+
+.file-badge:hover {
+    background: var(--accent);
+    color: white;
+    text-decoration: none;
+}
+
+/* ===== НАВИГАЦИЯ НА СТРАНИЦЕ НОВОСТИ ===== */
+
+.news-navigation {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+}
+
+.nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    font-size: 0.85rem;
+}
+
+.back-btn {
+    background: var(--light);
+    color: var(--primary);
+    border-color: var(--border);
+}
+
+.back-btn:hover {
+    background: #e9ecef;
+    text-decoration: none;
+}
+
+.nav-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.home-btn {
+    background: var(--primary);
+    color: white;
+}
+
+.home-btn:hover {
+    background: var(--secondary);
+    color: white;
+    text-decoration: none;
+}
+
+.category-btn, .section-btn {
+    background: var(--accent);
+    color: white;
+}
+
+.category-btn:hover, .section-btn:hover {
+    background: #c0392b;
+    color: white;
+    text-decoration: none;
+}
+
+/* ===== БЕГУЩАЯ СТРОКА С ЦИТАТАМИ ===== */
+
+.ticker-container {
+    background: var(--primary);
+    color: white;
+    padding: 12px 0;
+    overflow: hidden;
+    position: relative;
+    height: 50px;
+}
+
+.ticker-track {
+    display: flex;
+    animation: simple-ticker 120s linear infinite;
+    white-space: nowrap;
+}
+
+.ticker-item {
+    flex: 0 0 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.quote-text {
+    font-size: 1rem;
+    font-style: italic;
+    text-align: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+@keyframes simple-ticker {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(calc(-100% * 7)); /* 7 цитат */
+    }
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .ticker-container {
+        height: 40px;
+        padding: 8px 0;
+    }
+    
+    .quote-text {
+        font-size: 0.9rem;
+        padding: 0 15px;
+    }
+    
+    .ticker-track {
+        animation-duration: 150s; /* Медленнее на мобильных */
+    }
+}
+
+@media (max-width: 480px) {
+    .ticker-container {
+        height: 35px;
+    }
+    
+    .quote-text {
+        font-size: 0.85rem;
+        padding: 0 10px;
+    }
+    
+    .ticker-track {
+        animation-duration: 180s; /* Еще медленнее */
+    }
+}
+
+/* ===== ПОДВАЛ САЙТА ===== */
+
+.footer {
+    background: var(--secondary);
+    color: white;
+    text-align: center;
+    padding: 15px;
+    margin-top: 30px;
+}
+
+.footer a {
+    color: white;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* ===== АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ ===== */
+
+@media (max-width: 768px) {
+    /* Адаптивность шапки */
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .header-title {
+        margin: 0;
+    }
+    
+    .header-actions {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+    }
+    
+    /* Адаптивность поиска */
+    .search-main-form {
+        padding: 20px;
+    }
+    
+    .filters-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .filter-group {
+        min-width: auto;
+    }
+    
+    /* Адаптивность новостей */
+    .news-header {
+        flex-direction: column;
+    }
+    
+    .news-date {
+        margin-left: 0;
+        margin-top: 5px;
+    }
+    
+    .quick-search-tags {
+        justify-content: center;
+    }
+    
+    /* Адаптивность разделов */
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .header-logo {
+        margin-bottom: 10px;
+    }
+    
+    .header-title {
+        margin: 0;
+    }
+    
+    .sections-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .news-header-detail {
+        padding: 15px;
+    }
+    
+    .news-title-detail {
+        font-size: 1.3rem;
+    }
+    
+    .news-meta {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .news-content-detail {
+        padding: 15px;
+    }
+    
+    .files-section {
+        padding: 15px;
+    }
+    
+    .files-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .file-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+    }
+    
+    .file-meta {
+        justify-content: center;
+    }
+    
+    .news-navigation {
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+    }
+    
+    .nav-actions {
+        flex-direction: column;
+    }
+    
+    .nav-btn {
+        justify-content: center;
+    }
+    
+    .category-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    /* Адаптивность админки CKEditor */
+    .file-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .file-preview {
+        flex-direction: column;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+    
+    .preview-img {
+        margin-right: 0;
+        margin-bottom: 10px;
+        align-self: center;
+    }
+    
+    .file-actions {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Дополнительная адаптивность для очень маленьких экранов */
+    .search-main-input {
+        padding: 12px 15px;
+        padding-left: 45px;
+        font-size: 1rem;
+    }
+    
+    .search-icon-large {
+        left: 15px;
+    }
+    
+    .search-results-section {
+        padding: 15px;
+    }
+    
+    .search-result-item {
+        padding: 15px;
+    }
+    
+    .file-meta {
+        font-size: 0.8rem;
+    }
+    
+    .file-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .ckeditor-btn {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 5px;
+    }
+}
+
+/* ===== СТИЛИ ДЛЯ ССЫЛКИ НА АРХИВ НА ГЛАВНОЙ ===== */
+
+.archive-link-section {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+.archive-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--primary);
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border);
+    background: white;
+}
+
+.archive-link:hover {
+    background: var(--primary);
+    color: white;
+    text-decoration: none;
+    border-color: var(--primary);
+}

@@ -1,0 +1,208 @@
+<!-- [file name]: news_site/templates/news_site/search_results.html -->
+{% extends "news_site/base.html" %}
+
+{% block title %}Поиск новостей - РБД НТИ{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb">
+    <a href="{% url 'news_site:index' %}">Главная</a> 
+    <span>/</span>
+    <span>Поиск новостей</span>
+</nav>
+
+<div class="search-page">
+    <!-- Заголовок и описание -->
+    <div class="search-hero">
+        <h1>Поиск по новостям</h1>
+        <p>Найдите нужную информацию в базе научно-технических новостей</p>
+    </div>
+
+    <!-- Основная форма поиска -->
+    <div class="search-main-form">
+        <form method="get" action="{% url 'news_site:search_news' %}">
+            <div class="search-input-container">
+                <span class="search-icon-large">🔍</span>
+                <input type="text" name="q" placeholder="Введите поисковый запрос..." 
+                       value="{{ query }}" class="search-main-input" autofocus>
+            </div>
+            
+            <button type="submit" class="search-main-btn">
+                Найти новости
+            </button>
+        </form>
+
+        <!-- Кнопка показа фильтров -->
+        <button type="button" class="search-filters-toggle" onclick="toggleFilters()">
+            <span>📋</span>
+            Расширенные фильтры
+        </button>
+
+        <!-- Расширенные фильтры -->
+        <div class="search-filters" id="searchFilters">
+            <form method="get" action="{% url 'news_site:search_news' %}">
+                <input type="hidden" name="q" value="{{ query }}">
+                
+                <div class="filters-row">
+                    <div class="filter-group">
+                        <label for="section-filter">Раздел:</label>
+                        <select name="section" id="section-filter" class="filter-select">
+                            <option value="">Все разделы</option>
+                            {% for section in sections %}
+                            <option value="{{ section.slug }}" {% if section_filter == section.slug %}selected{% endif %}>
+                                {{ section.title }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="category-filter">Категория:</label>
+                        <select name="category" id="category-filter" class="filter-select">
+                            <option value="">Все категории</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}" {% if category_filter == category.id|stringformat:"i" %}selected{% endif %}>
+                                {{ category.get_full_path }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <button type="submit" class="search-main-btn" style="margin-top: 15px;">
+                    Применить фильтры
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Быстрый поиск -->
+    <div class="quick-search">
+        <h3>Популярные запросы:</h3>
+        <div class="quick-search-tags">
+            <a href="{% url 'news_site:search_news' %}?q=научные+исследования" class="quick-search-tag">Научные исследования</a>
+            <a href="{% url 'news_site:search_news' %}?q=техническая+документация" class="quick-search-tag">Техническая документация</a>
+            <a href="{% url 'news_site:search_news' %}?q=новые+технологии" class="quick-search-tag">Новые технологии</a>
+            <a href="{% url 'news_site:search_news' %}?q=инновации" class="quick-search-tag">Инновации</a>
+            <a href="{% url 'news_site:search_news' %}?q=разработки" class="quick-search-tag">Разработки</a>
+        </div>
+    </div>
+
+    <!-- Результаты поиска -->
+    {% if query or section_filter or category_filter %}
+    <div class="search-results-section">
+        <div class="results-header">
+            <h2>
+                {% if results_count == 0 %}
+                По запросу "{{ query }}" ничего не найдено
+                {% else %}
+                Найдено новостей: {{ results_count }}
+                {% endif %}
+            </h2>
+            
+            {% if results_count > 0 %}
+            <div class="search-query-info">
+                {% if query %}<strong>Запрос:</strong> "{{ query }}"{% endif %}
+                {% if selected_section %}| <strong>Раздел:</strong> {{ selected_section.title }}{% endif %}
+                {% if selected_category %}| <strong>Категория:</strong> {{ selected_category.get_full_path }}{% endif %}
+                <a href="{% url 'news_site:search_news' %}" class="clear-filters">Очистить фильтры</a>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if news_list %}
+        <div class="news-list">
+            {% for news_item in news_list %}
+            <div class="search-result-item">
+                <div class="news-header">
+                    <h3 class="news-title">
+                        <a href="{% url 'news_site:news_detail' news_item.id %}">{{ news_item.title }}</a>
+                    </h3>
+                    <div class="news-date">{{ news_item.created_at|date:"d.m.Y H:i" }}</div>
+                </div>
+                
+                <div class="news-path">
+                    Раздел: 
+                    <a href="{% url 'news_site:section' news_item.section.slug %}">{{ news_item.section.title }}</a>
+                    {% if news_item.category %}
+                    → 
+                    <a href="{% url 'news_site:category' news_item.section.slug news_item.category.get_path %}">
+                        {{ news_item.category.get_full_path }}
+                    </a>
+                    {% endif %}
+                </div>
+                
+                {% if news_item.content %}
+                <div class="news-content-preview">
+                    {{ news_item.content|striptags|truncatewords:50 }}
+                </div>
+                {% endif %}
+                
+                {% if news_item.files.all %}
+                <div class="news-files">
+                    {% for file in news_item.files.all %}
+                    <a href="{% url 'news_site:tracked_download' file.id %}" class="file-badge">
+                        📎 {{ file.filename }}
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% elif query %}
+        <div class="no-results">
+            <div class="no-results-icon">🔍</div>
+            <h3>Ничего не найдено</h3>
+            <p>Попробуйте изменить поисковый запрос или критерии фильтрации</p>
+            <div class="search-tips">
+                <h4>Советы по поиску:</h4>
+                <ul>
+                    <li>Проверьте правильность написания запроса</li>
+                    <li>Используйте более общие ключевые слова</li>
+                    <li>Попробуйте другой раздел или категорию</li>
+                    <li>Убедитесь, что в выбранном разделе есть новости</li>
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="search-instructions">
+        <div class="instructions-icon">💡</div>
+        <h3>Начните поиск</h3>
+        <p>Введите запрос в поле выше или воспользуйтесь быстрым поиском</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function toggleFilters() {
+    const filters = document.getElementById('searchFilters');
+    filters.classList.toggle('active');
+}
+
+// Авто-отправка формы при изменении фильтров
+document.addEventListener('DOMContentLoaded', function() {
+    const sectionFilter = document.getElementById('section-filter');
+    const categoryFilter = document.getElementById('category-filter');
+    
+    if (sectionFilter) {
+        sectionFilter.addEventListener('change', function() {
+            this.form.submit();
+        });
+    }
+    
+    if (categoryFilter) {
+        categoryFilter.addEventListener('change', function() {
+            this.form.submit();
+        });
+    }
+    
+    // Автофокус на поле поиска
+    const searchInput = document.querySelector('.search-main-input');
+    if (searchInput && !searchInput.value) {
+        searchInput.focus();
+    }
+});
+</script>
+{% endblock %}

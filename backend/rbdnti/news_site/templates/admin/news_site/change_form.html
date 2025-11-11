@@ -1,0 +1,68 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools-items %}
+    {{ block.super }}
+    <li>
+        {% if original %}
+            <a href="{% url 'admin:news_upload_files' original.pk %}" class="historylink" style="background: #417690; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;">
+                📁 Массовая загрузка файлов
+            </a>
+        {% else %}
+            <a href="javascript:void(0)" class="historylink" style="background: #79aec8; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none; cursor: pointer;" 
+               onclick="handleMassUploadClick()">
+                📁 Массовая загрузка файлов
+            </a>
+        {% endif %}
+    </li>
+    <li>
+        {# ✅ Обновляем URL #}
+        <a href="/ckeditor-files/" class="historylink" style="background: #5d8c00; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;">
+            🖼️ Управление файлами CKEditor
+        </a>
+    </li>
+{% endblock %}
+
+{% block admin_change_form_document_ready %}
+{{ block.super }}
+<script>
+function handleMassUploadClick() {
+    const saveAndContinueBtn = document.querySelector('input[name="_continue"]');
+    if (saveAndContinueBtn) {
+        saveAndContinueBtn.click();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('news_form');
+    const isNewNews = window.location.href.includes('/add/');
+    
+    if (form && isNewNews) {
+        let isMassUpload = false;
+        
+        const massUploadBtn = document.querySelector('[onclick="handleMassUploadClick()"]');
+        if (massUploadBtn) {
+            massUploadBtn.addEventListener('click', function() {
+                isMassUpload = true;
+            });
+        }
+        
+        form.addEventListener('submit', function(e) {
+            if (isMassUpload) {
+                setTimeout(function() {
+                    const checkRedirect = setInterval(function() {
+                        const currentUrl = window.location.href;
+                        const newsIdMatch = currentUrl.match(/\/news\/(\d+)\/change\//);
+                        
+                        if (newsIdMatch && newsIdMatch[1]) {
+                            clearInterval(checkRedirect);
+                            window.location.href = `/admin/news_site/news/${newsIdMatch[1]}/upload-files/`;
+                        }
+                    }, 100);
+                }, 500);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

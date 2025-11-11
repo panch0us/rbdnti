@@ -1,0 +1,68 @@
+{% extends "news_site/base.html" %}
+
+{% block title %}{{ section.title }} - РБД НТИ{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb">
+    <a href="{% url 'news_site:index' %}">Главная</a> 
+    <span>/</span>
+    <span>{{ section.title }}</span>
+</nav>
+
+<h1 class="section-title">{{ section.title }}</h1>
+
+{% if section.description %}
+<div class="category-tree">
+    <div class="category-description">{{ section.description }}</div>
+</div>
+{% endif %}
+
+<div class="category-tree">
+    <h3>Категории</h3>
+    {% for category in categories %}
+    <div class="category-item">
+        <a href="{% url 'news_site:category' section.slug category.get_path %}" class="category-link">
+            <div class="category-header">
+                <h4 class="category-title">{{ category.title }}</h4>
+                <div class="category-meta">Новостей: {{ category.news.count }}</div>
+            </div>
+            {% if category.description %}
+            <div class="category-description">{{ category.description }}</div>
+            {% endif %}
+        </a>
+    </div>
+    {% empty %}
+    <div class="category-item">
+        <p>В этом разделе пока нет категорий.</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% if news %}
+<div class="news-section">
+    <h3>Новости раздела</h3>
+    <div class="news-list">
+        {% for news_item in news %}
+        <div class="news-item">
+            <div class="news-header">
+                <h4 class="news-title">
+                    <a href="{% url 'news_site:news_detail' news_item.id %}">{{ news_item.title }}</a>
+                </h4>
+                <div class="news-date">{{ news_item.created_at|date:"d.m.Y H:i" }}</div>
+            </div>
+            
+            {% if news_item.files.all %}
+            <div class="news-files">
+                {% for file in news_item.files.all %}
+                <a href="{% url 'news_site:tracked_download' file.id %}" class="file-badge">
+                    📎 {{ file.filename }}
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

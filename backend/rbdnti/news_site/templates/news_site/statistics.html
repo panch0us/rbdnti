@@ -1,0 +1,478 @@
+{% extends "news_site/base.html" %}
+
+{% block title %}Статистика - РБД НТИ{% endblock %}
+
+{% block content %}
+<!-- Хлебные крошки -->
+<nav class="breadcrumb">
+    <span class="breadcrumb-item">
+        <a href="{% url 'news_site:index' %}">Главная</a>
+    </span>
+    <span class="breadcrumb-item active">Статистика</span>
+</nav>
+
+<h1 class="section-title">Статистика РБД НТИ</h1>
+
+<!-- Фильтр по датам -->
+<div class="stats-container">
+    <h3>Фильтр по дате</h3>
+    <form method="get" class="date-filter-form">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label for="start_date">С:</label>
+                <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
+            </div>
+            <div class="filter-group">
+                <label for="end_date">По:</label>
+                <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
+            </div>
+            <button type="submit" class="filter-btn">Применить фильтр</button>
+            <a href="{% url 'news_site:statistics' %}" class="filter-btn reset">Сбросить</a>
+        </div>
+        <div class="filter-help">
+        {% if start_date or end_date %}
+            Показаны данные за период: 
+            {% if start_date %}{{ start_date }}{% else %}начала времен{% endif %} 
+            - 
+            {% if end_date %}{{ end_date }}{% else %}сегодня{% endif %}
+        {% else %}
+            Показаны все данные
+        {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Общая статистика -->
+<div class="stats-container">
+    <h3>Общая статистика</h3>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ unique_users }}</div>
+            <div class="stat-label">Уникальных пользователей</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_news_period }}</div>
+            <div class="stat-label">Новостей за период</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_views_period }}</div>
+            <div class="stat-label">Просмотров за период</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ total_downloads_period }}</div>
+            <div class="stat-label">Скачиваний за период</div>
+        </div>
+    </div>
+</div>
+
+<!-- Детальная статистика по разделам и категориям -->
+<div class="stats-container">
+    <h3>Детальная статистика по разделам и категориям</h3>
+    
+    <form method="get" class="detailed-stats-form">
+        <!-- Сохраняем параметры дат -->
+        {% if start_date %}<input type="hidden" name="start_date" value="{{ start_date }}">{% endif %}
+        {% if end_date %}<input type="hidden" name="end_date" value="{{ end_date }}">{% endif %}
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="section_select">Выберите раздел:</label>
+                <select id="section_select" name="section_id" onchange="this.form.submit()">
+                    <option value="">-- Выберите раздел --</option>
+                    {% for section in all_sections %}
+                    <option value="{{ section.id }}" {% if selected_section_id == section.id|stringformat:"i" %}selected{% endif %}>
+                        {{ section.title }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        {% if selected_section %}
+        <div class="form-row">
+            <div class="form-group">
+                <label>Выберите объект для анализа:</label>
+                <div class="analysis-options">
+                    <button type="submit" name="analyze_type" value="section" class="analysis-btn {% if analyze_type == 'section' %}active{% endif %}">
+                        📊 Анализировать весь раздел
+                    </button>
+                    <span class="or-text">или</span>
+                    <div class="category-selector">
+                        <select name="category_id" id="category_select">
+                            <option value="">-- Выберите категорию --</option>
+                            {% for category in section_categories %}
+                            <option value="{{ category.id }}" {% if selected_category_id == category.id|stringformat:"i" %}selected{% endif %}>
+                                {{ category.full_path }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" name="analyze_type" value="category" class="category-analysis-btn">
+                            Анализировать
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </form>
+
+    <!-- Результаты анализа -->
+    {% if analysis_results %}
+    <div class="analysis-results">
+        <h4>Результаты анализа: 
+            <span class="analysis-target">
+                {% if analyze_type == 'section' %}
+                Раздел "{{ selected_section.title }}"
+                {% else %}
+                Категория "{{ analysis_results.full_path }}"
+                {% endif %}
+            </span>
+        </h4>
+        
+        <div class="stats-grid detailed">
+            <div class="stat-card detailed">
+                <div class="stat-icon">📰</div>
+                <div class="stat-info">
+                    <div class="stat-number">{{ analysis_results.total_news }}</div>
+                    <div class="stat-label">Всего новостей</div>
+                    <div class="stat-period">(рекурсивно)</div>
+                </div>
+            </div>
+            <div class="stat-card detailed">
+                <div class="stat-icon">📁</div>
+                <div class="stat-info">
+                    <div class="stat-number">{{ analysis_results.total_files }}</div>
+                    <div class="stat-label">Всего файлов</div>
+                    <div class="stat-period">(рекурсивно)</div>
+                </div>
+            </div>
+            <div class="stat-card detailed">
+                <div class="stat-icon">👁️</div>
+                <div class="stat-info">
+                    <div class="stat-number">{{ analysis_results.total_views }}</div>
+                    <div class="stat-label">Просмотров новостей</div>
+                    <div class="stat-period">(рекурсивно)</div>
+                </div>
+            </div>
+            <div class="stat-card detailed">
+                <div class="stat-icon">📥</div>
+                <div class="stat-info">
+                    <div class="stat-number">{{ analysis_results.total_downloads }}</div>
+                    <div class="stat-label">Скачиваний файлов</div>
+                    <div class="stat-period">(рекурсивно)</div>
+                </div>
+            </div>
+        </div>
+
+        {% if analysis_results.categories_stats %}
+        <div class="categories-breakdown">
+            <h5>Распределение по категориям:</h5>
+            <div class="categories-stats-list">
+                {% for category in analysis_results.categories_stats %}
+                <div class="category-stat-item">
+                    <div class="category-name">{{ category.full_path }}</div>
+                    <div class="category-stats">
+                        <span class="cat-stat">📰 {{ category.news_count }}</span>
+                        <span class="cat-stat">📁 {{ category.files_count }}</span>
+                        <span class="cat-stat">👁️ {{ category.views_count }}</span>
+                        <span class="cat-stat">📥 {{ category.downloads_count }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.stats-container {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.stats-container h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #e74c3c;
+    padding-bottom: 5px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.stats-grid.detailed {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    margin: 20px 0;
+}
+
+.stat-card {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+}
+
+.stat-card.detailed {
+    display: flex;
+    align-items: center;
+    text-align: left;
+    padding: 20px;
+}
+
+.stat-icon {
+    font-size: 2rem;
+    margin-right: 15px;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 3px;
+}
+
+.stat-period {
+    color: #95a5a6;
+    font-size: 0.8rem;
+}
+
+/* Формы */
+.detailed-stats-form {
+    margin-bottom: 20px;
+}
+
+.form-row {
+    margin-bottom: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.form-group select {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    max-width: 400px;
+}
+
+.analysis-options {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.analysis-btn {
+    padding: 12px 20px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.analysis-btn:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+}
+
+.analysis-btn.active {
+    background: #e74c3c;
+    box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+}
+
+.or-text {
+    color: #7f8c8d;
+    font-weight: bold;
+}
+
+.category-selector select {
+    min-width: 250px;
+}
+
+/* Результаты анализа */
+.analysis-results {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #ecf0f1;
+}
+
+.analysis-target {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.categories-breakdown {
+    margin-top: 25px;
+}
+
+.categories-breakdown h5 {
+    color: #34495e;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.categories-stats-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.category-stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border-left: 4px solid #3498db;
+}
+
+.category-name {
+    font-weight: 500;
+    color: #2c3e50;
+    flex: 1;
+}
+
+.category-stats {
+    display: flex;
+    gap: 15px;
+}
+
+.cat-stat {
+    background: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    color: #2c3e50;
+    border: 1px solid #dee2e6;
+}
+
+/* Фильтры по датам */
+.filter-row {
+    display: flex;
+    gap: 15px;
+    align-items: end;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filter-group label {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.filter-group input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.filter-btn {
+    padding: 8px 16px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.filter-btn.reset {
+    background: #95a5a6;
+}
+
+.filter-btn:hover {
+    opacity: 0.9;
+}
+
+.filter-help {
+    margin-top: 10px;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid.detailed {
+        grid-template-columns: 1fr;
+    }
+    
+    .filter-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .analysis-options {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .category-stat-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .category-stats {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .form-group select {
+        max-width: 100%;
+    }
+    
+    .category-selector select {
+        min-width: 200px;
+    }
+}
+</style>
+
+<script>
+// Устанавливаем сегодняшнюю дату как максимальную для фильтров
+document.addEventListener('DOMContentLoaded', function() {
+    var today = new Date().toISOString().split('T')[0];
+    document.getElementById('end_date').max = today;
+    document.getElementById('start_date').max = today;
+});
+</script>
+{% endblock %}
