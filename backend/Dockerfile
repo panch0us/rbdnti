@@ -7,7 +7,6 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
-    curl \
     libjpeg-dev \
     zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
@@ -19,10 +18,7 @@ COPY . .
 
 RUN mkdir -p /app/rbdnti/db /app/rbdnti/media /app/rbdnti/staticfiles
 
-# Создаем entrypoint скрипт для автоматизации
-COPY docker-entrypoint.sh /
-RUN chmod +x /docker-entrypoint.sh
-
 EXPOSE 8000
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
+# ИСПРАВЛЕННАЯ КОМАНДА - добавляем makemigrations
+CMD ["sh", "-c", "cd /app/rbdnti && python manage.py makemigrations news_site --noinput && python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn rbdnti.wsgi:application --bind 0.0.0.0:8000 --workers 3"]
