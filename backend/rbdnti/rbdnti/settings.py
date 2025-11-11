@@ -28,6 +28,15 @@ DEBUG = os.getenv("DEBUG", "False").lower() in ("1", "true", "yes")
 raw_hosts = os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost")
 ALLOWED_HOSTS = [h.strip() for h in raw_hosts.split(",") if h.strip()]
 
+# ⬇️ ДОБАВЛЕНО: Настройки для больших файлов (5GB)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5368709120  # 5GB в байтах
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5368709120  # 5GB в байтах
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000      # Увеличиваем лимит полей
+
+# ⬇️ ДОБАВЛЕНО: Настройки прав для файлов
+FILE_UPLOAD_PERMISSIONS = 0o644
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755
+
 INSTALLED_APPS = [
     'news_site.apps.NewsSiteConfig',
     'django.contrib.admin',
@@ -85,8 +94,8 @@ USE_TZ = True
 
 # Static files
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'news_site' / 'static']  # Исходные статические файлы
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # Куда collectstatic соберет файлы
+STATICFILES_DIRS = [BASE_DIR / 'news_site' / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Media files
 MEDIA_URL = '/media/'
