@@ -102,7 +102,7 @@ docker compose -f docker-compose.dev.yml exec web python /app/rbdnti/manage.py c
 ```bash
 tar -xzf rbdnti-offline-20241111.tar.gz
 ```
-### Переименовать для понятности
+### Переименовать в нужную версию
 ```bash
 mv rbdnti-offline-package rbdnti-v1
 ```
@@ -124,16 +124,14 @@ mv rbdnti-offline-package rbdnti-v2
 ```
 ### Скопировать данные из старой версии
 ```bash
-cp -r rbdnti-production/data rbdnti-v2/
+cp -r rbdnti-v1/data rbdnti-v2/
 ```
 ### Запустить обновление
 ```bash
+# Перед запуском обновленной версии проекта создается резервная копия директории data
+# в корне обновленного проекта с именем "backup_$(date +%Y%m%d_%H%M%S).tar.gz"
 cd rbdnti-v2
 ./update.sh
-```
-### Проверить работу
-```bash
-curl http://localhost/
 ```
 ### Удалить старую версию (опционально)
 ```bash
