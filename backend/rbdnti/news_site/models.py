@@ -3,18 +3,28 @@ from ckeditor.fields import RichTextField
 from ckeditor_uploader.fields import RichTextUploadingField
 import os
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 class Section(models.Model):
     title = models.CharField(max_length=255, verbose_name="Название")
     slug = models.SlugField(unique=True, verbose_name="URL")
     description = models.TextField(blank=True, verbose_name="Описание")
+    order = models.IntegerField(default=0, verbose_name="Порядок отображения")
+    subdivision = models.CharField(max_length=100, blank=True, verbose_name="Подразделение")
 
     def __str__(self):
         return self.title
 
+    def save(self, *args, **kwargs):
+        if not self.order:
+            max_order = Section.objects.aggregate(models.Max('order'))['order__max'] or 0
+            self.order = max_order + 1
+        super().save(*args, **kwargs)
+
     class Meta:
         verbose_name = "Раздел"
         verbose_name_plural = "Разделы"
+        ordering = ['order', 'title']
 
 class Category(models.Model):
     section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='categories', verbose_name="Раздел")
@@ -22,14 +32,26 @@ class Category(models.Model):
     slug = models.SlugField(verbose_name="URL")
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children', verbose_name="Родительская категория")
     description = models.TextField(blank=True, verbose_name="Описание")
+    order = models.IntegerField(default=0, verbose_name="Порядок отображения")
+    subdivision = models.CharField(max_length=100, blank=True, verbose_name="Подразделение")
 
     class Meta:
         unique_together = ('section', 'slug', 'parent')
         verbose_name = "Категория"
         verbose_name_plural = "Категории"
+        ordering = ['order', 'title']
 
     def __str__(self):
         return self.get_full_path()
+
+    def save(self, *args, **kwargs):
+        if not self.order:
+            max_order = Category.objects.filter(
+                section=self.section, 
+                parent=self.parent
+            ).aggregate(models.Max('order'))['order__max'] or 0
+            self.order = max_order + 1
+        super().save(*args, **kwargs)
 
     def get_full_path(self):
         path = [self.title]
@@ -53,26 +75,34 @@ class News(models.Model):
     title = models.CharField(max_length=255, verbose_name="Заголовок")
     content = RichTextUploadingField(blank=True, verbose_name="Содержание")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    order = models.IntegerField(default=0, verbose_name="Порядок отображения")
+    subdivision = models.CharField(max_length=100, blank=True, verbose_name="Подразделение")
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Автор")
 
     def __str__(self):
         return self.title
 
+    def save(self, *args, **kwargs):
+        if not self.order:
+            max_order = News.objects.aggregate(models.Max('order'))['order__max'] or 0
+            self.order = max_order + 1
+        super().save(*args, **kwargs)
+
     class Meta:
         verbose_name = "Новость"
         verbose_name_plural = "Новости"
-        ordering = ['-created_at']
+        ordering = ['order', '-created_at']
 
 class NewsFile(models.Model):
     news = models.ForeignKey(News, on_delete=models.CASCADE, related_name='files', verbose_name="Новость")
     file = models.FileField(upload_to='news_files/', verbose_name="Файл")
     filename = models.CharField(max_length=255, blank=True, verbose_name="Имя файла")
-    # ✅ Добавляем поле created_at
     created_at = models.DateTimeField(default=timezone.now, verbose_name="Дата создания")
 
     def save(self, *args, **kwargs):
         if not self.filename:
             self.filename = self.file.name
-        if not self.id:  # Только при создании
+        if not self.id:
             self.created_at = timezone.now()
         super().save(*args, **kwargs)
 

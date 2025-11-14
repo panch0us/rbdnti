@@ -15,27 +15,25 @@ class NewsFileInline(admin.TabularInline):
         if obj.file:
             return format_html('<a href="{}" download>📥 Скачать</a>', obj.file.url)
         return "-"
+    
     download_link.short_description = "Скачать"
 
 @admin.register(News)
 class NewsAdmin(admin.ModelAdmin):
-    list_display = ('title', 'section', 'category', 'created_at', 'files_count')
-    list_filter = ('section', 'category', 'created_at')
-    search_fields = ('title', 'content')
+    list_display = ('title', 'section', 'category', 'subdivision', 'author', 'order', 'created_at', 'files_count')
+    list_filter = ('section', 'category', 'subdivision', 'author', 'created_at')
+    search_fields = ('title', 'content', 'subdivision')
+    list_editable = ('order',)
     inlines = [NewsFileInline]
     
-    class Media:
-        css = {
-            'all': ('ckeditor/ckeditor.css',)
-        }
-        js = (
-            'admin/js/news_admin.js',
-            'ckeditor/ckeditor-init.js',
-            'ckeditor/ckeditor/ckeditor.js',
-        )
+    def save_model(self, request, obj, form, change):
+        if not obj.author:
+            obj.author = request.user
+        super().save_model(request, obj, form, change)
 
     def files_count(self, obj):
         return obj.files.count()
+    
     files_count.short_description = "Файлов"
 
     def get_urls(self):
@@ -92,13 +90,15 @@ class NewsAdmin(admin.ModelAdmin):
 
 @admin.register(Section)
 class SectionAdmin(admin.ModelAdmin):
-    list_display = ('title', 'slug')
+    list_display = ('title', 'slug', 'subdivision', 'order')
+    list_editable = ('order',)
     prepopulated_fields = {'slug': ('title',)}
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('title', 'section', 'parent', 'get_full_path')
-    list_filter = ('section', 'parent')
+    list_display = ('title', 'section', 'parent', 'subdivision', 'order', 'get_full_path')
+    list_filter = ('section', 'parent', 'subdivision')
+    list_editable = ('order',)
     prepopulated_fields = {'slug': ('title',)}
     
     class Media:
@@ -144,6 +144,7 @@ class NewsFileAdmin(admin.ModelAdmin):
         if obj.file:
             return format_html('<a href="{}" download>📥 Скачать</a>', obj.file.url)
         return "-"
+    
     download_link.short_description = "Скачать"
 
 @admin.register(DownloadStatistic)

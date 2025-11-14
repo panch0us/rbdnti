@@ -38,12 +38,24 @@
                 </a>
             </div>
             {% endif %}
+            {% if news.subdivision %}
+            <div class="meta-item">
+                <strong>Подразделение:</strong> {{ news.subdivision }}
+            </div>
+            {% endif %}
+            {% if news.author %}
+            <div class="meta-item">
+                <strong>Автор:</strong> 
+                <a href="https://it.mvd.ru/officials?query={{ news.author.username }}" target="_blank">
+                    {{ news.author.get_full_name|default:news.author.username }}
+                </a>
+            </div>
+            {% endif %}
         </div>
     </header>
 
     <div class="news-content-detail">
         {% if news.content %}
-            {# ✅ Используем safe для отображения HTML-контента из CKEditor #}
             {{ news.content|safe }}
         {% else %}
             <p class="no-content">К этой новости пока нет дополнительного описания.</p>
