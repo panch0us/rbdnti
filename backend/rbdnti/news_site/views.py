@@ -11,6 +11,8 @@ from django.conf import settings
 from .models import Section, Category, News, NewsFile, ViewStatistic, DownloadStatistic, Subdivision
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from collections import defaultdict
+import re
+from django.utils.html import strip_tags
 
 
 def news_archive(request):
@@ -142,42 +144,136 @@ def news_detail(request, news_id):
 
 
 def search_news(request):
-    """Поиск новостей по заголовку и содержанию"""
-    query = request.GET.get('q', '').strip()
+    """Улучшенный поиск (адаптирован для SQLite) + поиск по файлам"""
+    raw_q = request.GET.get('q', '') or ''
+    query = raw_q.replace('\u00A0', ' ')
+    query = ' '.join(query.split()).strip()
+
     section_filter = request.GET.get('section', '')
     category_filter = request.GET.get('category', '')
-    
-    news_list = News.objects.select_related('section', 'category', 'author', 'subdivision').prefetch_related('files').all()
-    
+
+    base_qs = News.objects.select_related('section', 'category', 'author', 'subdivision').prefetch_related('files').all()
+
+    def simple_translit_lat_to_cyr(s: str) -> str:
+        map_table = str.maketrans({
+            'A': 'А','a':'а','B':'В','E':'Е','e':'е','K':'К','M':'М','H':'Н','O':'О','o':'о',
+            'P':'Р','C':'С','c':'с','T':'Т','Y':'У'
+        })
+        return s.translate(map_table)
+
+    def normalize_text_for_python_search(text: str) -> str:
+        if not text:
+            return ''
+        clean = strip_tags(text)
+        clean = clean.replace('\u00A0', ' ')
+        clean = ' '.join(clean.split())
+        return clean.casefold()
+
+    def python_matches(news_obj, tokens):
+        hay = []
+        hay.append((news_obj.title or '').casefold())
+        hay.append(normalize_text_for_python_search(news_obj.content or ''))
+        if news_obj.author and getattr(news_obj.author, 'username', None):
+            hay.append(str(news_obj.author.username).casefold())
+        if news_obj.subdivision and getattr(news_obj.subdivision, 'name', None):
+            hay.append(str(news_obj.subdivision.name).casefold())
+        if news_obj.section and getattr(news_obj.section, 'title', None):
+            hay.append(str(news_obj.section.title).casefold())
+        if news_obj.category:
+            if getattr(news_obj.category, 'title', None):
+                hay.append(str(news_obj.category.title).casefold())
+            try:
+                full_path = news_obj.category.get_full_path()
+                if full_path:
+                    hay.append(str(full_path).casefold())
+            except Exception:
+                pass
+        # Добавляем имена файлов (filename) в haystack
+        try:
+            for f in news_obj.files.all():
+                if getattr(f, 'filename', None):
+                    hay.append(str(f.filename).casefold())
+        except Exception:
+            pass
+
+        big = "\n".join(hay)
+        return all(tok in big for tok in tokens)
+
+    filtered_qs = base_qs
+    news_list = filtered_qs
+
     if query:
-        news_list = news_list.filter(
-            Q(title__icontains=query) | 
-            Q(content__icontains=query)
-        )
-    
+        tokens = [t for t in re.split(r'[\s,;:.!?\"«»()\-]+', query) if t]
+        alt_tokens = []
+        for t in tokens:
+            alt = simple_translit_lat_to_cyr(t)
+            if alt != t:
+                alt_tokens.append(alt)
+
+        def build_q_for_tokens(tok_list):
+            q_obj = Q()
+            for tok in tok_list:
+                tok_q = (
+                    Q(title__icontains=tok) |
+                    Q(content__icontains=tok) |
+                    Q(section__title__icontains=tok) |
+                    Q(category__title__icontains=tok) |
+                    Q(subdivision__name__icontains=tok) |
+                    Q(author__username__icontains=tok) |
+                    Q(files__filename__icontains=tok)   # <-- поиск по имени файла
+                )
+                q_obj &= tok_q
+            return q_obj
+
+        sql_q = build_q_for_tokens(tokens)
+        filtered_qs = filtered_qs.filter(sql_q).distinct()  # distinct чтобы не дублировать новости
+
+        if not filtered_qs.exists():
+            if alt_tokens:
+                filtered_qs = base_qs.filter(build_q_for_tokens(alt_tokens)).distinct()
+            if not filtered_qs.exists():
+                candidates = list(base_qs.order_by('-created_at')[:2000])
+            else:
+                candidates = list(filtered_qs[:2000])
+        else:
+            candidates = list(filtered_qs[:2000])
+
+        normalized_tokens = [t.casefold() for t in tokens]
+        results = []
+        for obj in candidates:
+            if python_matches(obj, normalized_tokens):
+                results.append(obj)
+
+        if not results and alt_tokens:
+            normalized_alt = [t.casefold() for t in alt_tokens]
+            for obj in candidates:
+                if python_matches(obj, normalized_alt):
+                    results.append(obj)
+
+        news_list = results
+
+    # фильтры section/category
     if section_filter:
-        news_list = news_list.filter(section__slug=section_filter)
-    
+        if isinstance(news_list, list):
+            news_list = [n for n in news_list if n.section and n.section.slug == section_filter]
+        else:
+            news_list = news_list.filter(section__slug=section_filter)
     if category_filter:
-        news_list = news_list.filter(category__id=category_filter)
-    
+        if isinstance(news_list, list):
+            news_list = [n for n in news_list if n.category and str(n.category.id) == str(category_filter)]
+        else:
+            news_list = news_list.filter(category__id=category_filter)
+
     sections = Section.objects.all()
-    
     categories = Category.objects.all()
     if section_filter:
         categories = categories.filter(section__slug=section_filter)
-    
-    selected_section = None
-    selected_category = None
-    
-    if section_filter:
-        selected_section = Section.objects.filter(slug=section_filter).first()
-    
-    if category_filter:
-        selected_category = Category.objects.filter(id=category_filter).first()
-    
+
+    selected_section = Section.objects.filter(slug=section_filter).first() if section_filter else None
+    selected_category = Category.objects.filter(id=category_filter).first() if category_filter else None
+
     ticker_quotes = get_ticker_quotes()
-    
+
     context = {
         'news_list': news_list,
         'query': query,
@@ -188,11 +284,10 @@ def search_news(request):
         'selected_section': selected_section,
         'selected_category': selected_category,
         'ticker_quotes': ticker_quotes,
-        'results_count': news_list.count(),
+        'results_count': (len(news_list) if isinstance(news_list, list) else news_list.count()),
     }
-    
-    return render(request, 'news_site/search_results.html', context)
 
+    return render(request, 'news_site/search_results.html', context)
 
 def statistics_view(request):
     """Упрощенная статистика с детальным анализом разделов и категорий"""
