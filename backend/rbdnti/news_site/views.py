@@ -8,13 +8,14 @@ from django.db.models import Count, Q
 import os
 import random
 from django.conf import settings
-from .models import Section, Category, News, NewsFile, ViewStatistic, DownloadStatistic
+from .models import Section, Category, News, NewsFile, ViewStatistic, DownloadStatistic, Subdivision
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from collections import defaultdict
 
 
 def news_archive(request):
     """Архив всех новостей с пагинацией"""
-    all_news = News.objects.select_related('section', 'category', 'author').prefetch_related('files').all()
+    all_news = News.objects.select_related('section', 'category', 'author', 'subdivision').prefetch_related('files').all()
     
     paginator = Paginator(all_news, 100)
     page = request.GET.get('page')
@@ -83,7 +84,7 @@ def tracked_download(request, file_id):
 
 def index(request):
     sections = Section.objects.all()
-    latest_news = News.objects.select_related('section', 'category', 'author').prefetch_related('files')[:3]
+    latest_news = News.objects.select_related('section', 'category', 'author', 'subdivision').prefetch_related('files')[:3]
     ticker_quotes = get_ticker_quotes()
     
     return render(request, 'news_site/index.html', {
@@ -131,7 +132,7 @@ def category_view(request, section_slug, category_path):
 
 
 def news_detail(request, news_id):
-    news = get_object_or_404(News.objects.select_related('author').prefetch_related('files'), id=news_id)
+    news = get_object_or_404(News.objects.select_related('author', 'subdivision').prefetch_related('files'), id=news_id)
     ticker_quotes = get_ticker_quotes()
     
     return render(request, 'news_site/news_detail.html', {
@@ -146,7 +147,7 @@ def search_news(request):
     section_filter = request.GET.get('section', '')
     category_filter = request.GET.get('category', '')
     
-    news_list = News.objects.select_related('section', 'category', 'author').prefetch_related('files').all()
+    news_list = News.objects.select_related('section', 'category', 'author', 'subdivision').prefetch_related('files').all()
     
     if query:
         news_list = news_list.filter(
@@ -227,6 +228,18 @@ def statistics_view(request):
     total_views_period = views_queryset.count()
     total_downloads_period = downloads_queryset.count()
     
+    # Статистика по подразделениям
+    subdivision_stats = {}
+    all_subdivisions = Subdivision.objects.all()
+    
+    for subdivision in all_subdivisions:
+        subdivision_news_count = news_queryset.filter(subdivision=subdivision).count()
+        if subdivision_news_count > 0:
+            subdivision_stats[subdivision.name] = subdivision_news_count
+    
+    # Сортируем по количеству новостей (убывание)
+    subdivision_stats = dict(sorted(subdivision_stats.items(), key=lambda x: x[1], reverse=True))
+    
     all_sections = Section.objects.all()
     
     selected_section = None
@@ -271,6 +284,15 @@ def statistics_view(request):
                 
                 target_downloads = downloads_queryset.filter(news_file__news__section=selected_section)
                 
+                # Статистика по подразделениям для раздела
+                section_subdivision_stats = {}
+                for subdivision in all_subdivisions:
+                    subdivision_news_count = target_news.filter(subdivision=subdivision).count()
+                    if subdivision_news_count > 0:
+                        section_subdivision_stats[subdivision.name] = subdivision_news_count
+                
+                section_subdivision_stats = dict(sorted(section_subdivision_stats.items(), key=lambda x: x[1], reverse=True))
+                
                 categories_stats = []
                 for category in Category.objects.filter(section=selected_section, parent__isnull=True):
                     all_category_ids = get_all_subcategory_ids(category.id)
@@ -285,6 +307,15 @@ def statistics_view(request):
                     
                     cat_downloads = downloads_queryset.filter(news_file__news__category__in=all_category_ids)
                     
+                    # Статистика по подразделениям для категории
+                    category_subdivision_stats = {}
+                    for subdivision in all_subdivisions:
+                        subdivision_news_count = cat_news.filter(subdivision=subdivision).count()
+                        if subdivision_news_count > 0:
+                            category_subdivision_stats[subdivision.name] = subdivision_news_count
+                    
+                    category_subdivision_stats = dict(sorted(category_subdivision_stats.items(), key=lambda x: x[1], reverse=True))
+                    
                     categories_stats.append({
                         'id': category.id,
                         'title': category.title,
@@ -293,6 +324,7 @@ def statistics_view(request):
                         'files_count': cat_files.count(),
                         'views_count': cat_views.count(),
                         'downloads_count': cat_downloads.count(),
+                        'subdivision_stats': category_subdivision_stats
                     })
                 
                 analysis_results = {
@@ -301,6 +333,7 @@ def statistics_view(request):
                     'total_files': target_files.count(),
                     'total_views': target_views.count(),
                     'total_downloads': target_downloads.count(),
+                    'subdivision_stats': section_subdivision_stats,
                     'categories_stats': categories_stats
                 }
                 
@@ -318,12 +351,22 @@ def statistics_view(request):
                 
                 target_downloads = downloads_queryset.filter(news_file__news__category__in=all_category_ids)
                 
+                # Статистика по подразделениям для категории
+                category_subdivision_stats = {}
+                for subdivision in all_subdivisions:
+                    subdivision_news_count = target_news.filter(subdivision=subdivision).count()
+                    if subdivision_news_count > 0:
+                        category_subdivision_stats[subdivision.name] = subdivision_news_count
+                
+                category_subdivision_stats = dict(sorted(category_subdivision_stats.items(), key=lambda x: x[1], reverse=True))
+                
                 analysis_results = {
                     'full_path': selected_category.get_full_path(),
                     'total_news': target_news.count(),
                     'total_files': target_files.count(),
                     'total_views': target_views.count(),
                     'total_downloads': target_downloads.count(),
+                    'subdivision_stats': category_subdivision_stats,
                     'categories_stats': None
                 }
     
@@ -334,6 +377,7 @@ def statistics_view(request):
         'total_news_period': total_news_period,
         'total_views_period': total_views_period,
         'total_downloads_period': total_downloads_period,
+        'subdivision_stats': subdivision_stats,
         'all_sections': all_sections,
         'selected_section_id': selected_section_id,
         'selected_category_id': selected_category_id,

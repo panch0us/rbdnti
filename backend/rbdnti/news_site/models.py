@@ -5,12 +5,30 @@ import os
 from django.utils import timezone
 from django.contrib.auth.models import User
 
+class Subdivision(models.Model):
+    name = models.CharField(max_length=100, unique=True, verbose_name="Название подразделения")
+    order = models.IntegerField(default=0, verbose_name="Порядок отображения")
+    
+    def __str__(self):
+        return self.name
+    
+    def save(self, *args, **kwargs):
+        if not self.order:
+            max_order = Subdivision.objects.aggregate(models.Max('order'))['order__max'] or 0
+            self.order = max_order + 1
+        super().save(*args, **kwargs)
+    
+    class Meta:
+        verbose_name = "Подразделение"
+        verbose_name_plural = "Подразделения"
+        ordering = ['order', 'name']
+
 class Section(models.Model):
     title = models.CharField(max_length=255, verbose_name="Название")
     slug = models.SlugField(unique=True, verbose_name="URL")
     description = models.TextField(blank=True, verbose_name="Описание")
     order = models.IntegerField(default=0, verbose_name="Порядок отображения")
-    subdivision = models.CharField(max_length=100, blank=True, verbose_name="Подразделение")
+    subdivision = models.ForeignKey(Subdivision, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Подразделение")
 
     def __str__(self):
         return self.title
@@ -33,7 +51,7 @@ class Category(models.Model):
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children', verbose_name="Родительская категория")
     description = models.TextField(blank=True, verbose_name="Описание")
     order = models.IntegerField(default=0, verbose_name="Порядок отображения")
-    subdivision = models.CharField(max_length=100, blank=True, verbose_name="Подразделение")
+    subdivision = models.ForeignKey(Subdivision, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Подразделение")
 
     class Meta:
         unique_together = ('section', 'slug', 'parent')
@@ -76,7 +94,7 @@ class News(models.Model):
     content = RichTextUploadingField(blank=True, verbose_name="Содержание")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
     order = models.IntegerField(default=0, verbose_name="Порядок отображения")
-    subdivision = models.CharField(max_length=100, blank=True, verbose_name="Подразделение")
+    subdivision = models.ForeignKey(Subdivision, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Подразделение")
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Автор")
 
     def __str__(self):

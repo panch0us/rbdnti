@@ -63,6 +63,21 @@
             <div class="stat-label">Скачиваний за период</div>
         </div>
     </div>
+
+    <!-- Статистика по подразделениям -->
+    {% if subdivision_stats %}
+    <div class="subdivision-stats">
+        <h4>📊 Размещено подразделениями</h4>
+        <div class="subdivision-list">
+            {% for subdivision, count in subdivision_stats.items %}
+            <div class="subdivision-item">
+                <span class="subdivision-name">{{ subdivision }}</span>
+                <span class="subdivision-count">{{ count }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
 </div>
 
 <!-- Детальная статистика по разделам и категориям -->
@@ -164,6 +179,21 @@
             </div>
         </div>
 
+        <!-- Статистика по подразделениям для раздела/категории -->
+        {% if analysis_results.subdivision_stats %}
+        <div class="subdivision-stats detailed">
+            <h5>📊 Распределение по подразделениям:</h5>
+            <div class="subdivision-list">
+                {% for subdivision, count in analysis_results.subdivision_stats.items %}
+                <div class="subdivision-item">
+                    <span class="subdivision-name">{{ subdivision }}</span>
+                    <span class="subdivision-count">{{ count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
         {% if analysis_results.categories_stats %}
         <div class="categories-breakdown">
             <h5>Распределение по категориям:</h5>
@@ -177,6 +207,13 @@
                         <span class="cat-stat">👁️ {{ category.views_count }}</span>
                         <span class="cat-stat">📥 {{ category.downloads_count }}</span>
                     </div>
+                    {% if category.subdivision_stats %}
+                    <div class="category-subdivisions">
+                        {% for subdivision, count in category.subdivision_stats.items %}
+                        <span class="subdivision-badge">{{ subdivision }}: {{ count }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
                 </div>
                 {% endfor %}
             </div>
@@ -250,6 +287,71 @@
 .stat-period {
     color: #95a5a6;
     font-size: 0.8rem;
+}
+
+/* Статистика по подразделениям */
+.subdivision-stats {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #3498db;
+}
+
+.subdivision-stats.detailed {
+    margin-top: 25px;
+}
+
+.subdivision-stats h4, .subdivision-stats h5 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.subdivision-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.subdivision-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+}
+
+.subdivision-name {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.subdivision-count {
+    background: #3498db;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.category-subdivisions {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.subdivision-badge {
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 3px 6px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    border: 1px solid #bbdefb;
 }
 
 /* Формы */
@@ -348,8 +450,7 @@
 
 .category-stat-item {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
     padding: 12px 15px;
     background: #f8f9fa;
     border-radius: 6px;
@@ -359,12 +460,13 @@
 .category-name {
     font-weight: 500;
     color: #2c3e50;
-    flex: 1;
+    margin-bottom: 8px;
 }
 
 .category-stats {
     display: flex;
     gap: 15px;
+    margin-bottom: 8px;
 }
 
 .cat-stat {
@@ -463,6 +565,17 @@
     
     .category-selector select {
         min-width: 200px;
+    }
+    
+    .subdivision-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .category-subdivisions {
+        flex-direction: column;
+        align-items: flex-start;
     }
 }
 </style>

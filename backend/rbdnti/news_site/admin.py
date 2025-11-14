@@ -3,7 +3,13 @@ from django.urls import path
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.html import format_html
 from django.http import JsonResponse
-from .models import News, NewsFile, Section, Category, DownloadStatistic
+from .models import News, NewsFile, Section, Category, DownloadStatistic, Subdivision
+
+@admin.register(Subdivision)
+class SubdivisionAdmin(admin.ModelAdmin):
+    list_display = ('name', 'order')
+    list_editable = ('order',)
+    search_fields = ('name',)
 
 class NewsFileInline(admin.TabularInline):
     model = NewsFile
@@ -22,7 +28,7 @@ class NewsFileInline(admin.TabularInline):
 class NewsAdmin(admin.ModelAdmin):
     list_display = ('title', 'section', 'category', 'subdivision', 'author', 'order', 'created_at', 'files_count')
     list_filter = ('section', 'category', 'subdivision', 'author', 'created_at')
-    search_fields = ('title', 'content', 'subdivision')
+    search_fields = ('title', 'content')
     list_editable = ('order',)
     inlines = [NewsFileInline]
     
