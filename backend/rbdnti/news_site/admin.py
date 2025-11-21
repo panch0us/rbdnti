@@ -32,6 +32,10 @@ class NewsAdmin(admin.ModelAdmin):
     list_editable = ('order',)
     inlines = [NewsFileInline]
     
+    # ✅ ДОБАВЛЕНО: Подключение JavaScript для фильтрации категорий
+    class Media:
+        js = ('admin/js/news_admin.js',)
+    
     def save_model(self, request, obj, form, change):
         if not obj.author:
             obj.author = request.user
@@ -89,6 +93,7 @@ class NewsAdmin(admin.ModelAdmin):
     def get_categories(self, request):
         section_id = request.GET.get('section_id')
         if section_id:
+            # ✅ ИСПРАВЛЕНО: Фильтруем категории по выбранному разделу
             categories = Category.objects.filter(section_id=section_id)
             results = [{'id': cat.id, 'title': cat.get_full_path()} for cat in categories]
             return JsonResponse({'results': results})
