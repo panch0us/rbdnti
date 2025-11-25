@@ -79,11 +79,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'rbdnti.wsgi.application'
 
-# SQLite — в папке /app/rbdnti/db/db.sqlite3
+# SQLite — в папке /app/rbdnti/data/db/db.sqlite3
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db' / 'db.sqlite3',
+        'NAME': BASE_DIR / 'data' / 'db' / 'db.sqlite3',
     }
 }
 
@@ -95,11 +95,11 @@ USE_TZ = True
 # Static files
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'news_site' / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = BASE_DIR / 'data' / 'staticfiles'
 
 # Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = BASE_DIR / 'data' / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

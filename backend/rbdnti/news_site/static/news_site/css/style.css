@@ -990,12 +990,15 @@ body {
 /* ===== БЕГУЩАЯ СТРОКА С ЦИТАТАМИ ===== */
 
 .ticker-container {
-    background: var(--primary);
-    color: white;
-    padding: 12px 0;
+    background: transparent; /* Убрана синяя заливка */
+    color: #333; /* Темный цвет текста вместо белого */
+    padding: 2px 0; /* Уменьшены отступы */
     overflow: hidden;
     position: relative;
-    height: 50px;
+    height: 20px; /* Уменьшена высота */
+    margin-top: 5px; /* Отступ сверху */
+    margin-bottom: 5px; /* Отступ снизу, чтобы было ближе к футеру */
+    border: none; /* Убрана рамка */
 }
 
 .ticker-track {
@@ -1014,11 +1017,13 @@ body {
 }
 
 .quote-text {
-    font-size: 1rem;
+    font-size: 0.95rem; /* Немного уменьшен размер шрифта */
     font-style: italic;
     text-align: center;
     max-width: 1200px;
     margin: 0 auto;
+    color: #666; /* Серый цвет текста для менее навязчивого вида */
+    font-weight: 400; /* Нормальная толщина шрифта */
 }
 
 @keyframes simple-ticker {
@@ -1033,12 +1038,14 @@ body {
 /* Адаптивность для мобильных */
 @media (max-width: 768px) {
     .ticker-container {
-        height: 40px;
-        padding: 8px 0;
+        height: 35px; /* Еще меньше на мобильных */
+        padding: 6px 0; /* Уменьшены отступы */
+        margin-top: 15px;
+        margin-bottom: 5px;
     }
     
     .quote-text {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         padding: 0 15px;
     }
     
@@ -1049,11 +1056,12 @@ body {
 
 @media (max-width: 480px) {
     .ticker-container {
-        height: 35px;
+        height: 30px; /* Минимальная высота */
+        padding: 4px 0;
     }
     
     .quote-text {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         padding: 0 10px;
     }
     

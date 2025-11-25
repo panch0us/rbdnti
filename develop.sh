@@ -3,6 +3,9 @@
 
 echo "=== Starting Development Mode ==="
 
+# Создаем папки для данных на хосте (внутри backend/rbdnti/data)
+mkdir -p backend/rbdnti/data/db backend/rbdnti/data/media backend/rbdnti/data/staticfiles
+
 # Создаем временный docker-compose с build:
 cat > docker-compose.dev.yml << 'EOF'
 services:
@@ -14,9 +17,9 @@ services:
     env_file: .env
     restart: unless-stopped
     volumes:
-      - ./data/db:/app/rbdnti/db
-      - ./data/media:/app/rbdnti/media
-      - ./data/staticfiles:/app/rbdnti/staticfiles
+      - ./backend/rbdnti/data/db:/app/rbdnti/data/db
+      - ./backend/rbdnti/data/media:/app/rbdnti/data/media
+      - ./backend/rbdnti/data/staticfiles:/app/rbdnti/data/staticfiles
     expose:
       - "8000"
 
@@ -28,8 +31,8 @@ services:
       - "80:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./data/staticfiles:/static:ro
-      - ./data/media:/media:ro
+      - ./backend/rbdnti/data/staticfiles:/static:ro
+      - ./backend/rbdnti/data/media:/media:ro
     depends_on:
       - web
 EOF

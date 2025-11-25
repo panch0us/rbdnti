@@ -16,9 +16,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN mkdir -p /app/rbdnti/db /app/rbdnti/media /app/rbdnti/staticfiles
+# СОЗДАЕМ ПАПКИ ДЛЯ ДАННЫХ ВНУТРИ ПРОЕКТА
+RUN mkdir -p /app/rbdnti/data/db /app/rbdnti/data/media /app/rbdnti/data/staticfiles
 
 EXPOSE 8000
 
-# ИСПРАВЛЕННАЯ КОМАНДА - добавляем makemigrations
 CMD ["sh", "-c", "cd /app/rbdnti && python manage.py makemigrations news_site --noinput && python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn rbdnti.wsgi:application --bind 0.0.0.0:8000 --workers 3"]

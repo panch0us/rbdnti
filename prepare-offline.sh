@@ -34,9 +34,9 @@ services:
     env_file: .env
     restart: unless-stopped
     volumes:
-      - ./data/db:/app/rbdnti/db
-      - ./data/media:/app/rbdnti/media
-      - ./data/staticfiles:/app/rbdnti/staticfiles
+      - ./data/db:/app/rbdnti/data/db
+      - ./data/media:/app/rbdnti/data/media
+      - ./data/staticfiles:/app/rbdnti/data/staticfiles
     expose:
       - "8000"
 
