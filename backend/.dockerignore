@@ -1,0 +1,4 @@
+# do not include runtime data in the build context
+rbdnti/data/
+rbdnti/data/*
+*.sqlite3
