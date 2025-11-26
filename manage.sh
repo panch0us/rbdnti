@@ -15,7 +15,6 @@ err(){ echo "ERROR: $*" >&2; }
 # generate development docker-compose (bind-mounts code and data)
 generate_dev_compose(){
 cat > "$DEV_COMPOSE" <<'YAML'
-version: '3.8'
 services:
   web:
     build:
