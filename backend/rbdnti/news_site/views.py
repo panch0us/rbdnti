@@ -43,14 +43,14 @@ def news_archive(request):
 
 
 def get_ticker_quotes():
-    """Загружает цитаты для бегущей строки в случайном порядке"""
-    quotes_file = os.path.join(settings.BASE_DIR, 'news_site', 'static', 'news_site', 'data', 'quotes.txt')
+    """Загружает случайные цитаты из базы данных"""
+    from .models import TickerQuote
     
-    try:
-        with open(quotes_file, 'r', encoding='utf-8') as f:
-            quotes = [line.strip() for line in f if line.strip()]
-    except:
-        quotes = [
+    quotes_count = TickerQuote.objects.count()
+    
+    if quotes_count == 0:
+        # Fallback на старые цитаты, если в базе нет данных
+        return [
             "Наука - это организованное знание. Герберт Спенсер",
             "Информация - это не знание. Альберт Эйнштейн",
             "Знание - это сила. Фрэнсис Бэкон",
@@ -58,8 +58,9 @@ def get_ticker_quotes():
             "Будущее уже наступило, оно просто неравномерно распределено. Уильям Гибсон"
         ]
     
-    random.shuffle(quotes)
-    return quotes
+    # Берем 5 случайных цитат
+    random_quotes = list(TickerQuote.objects.order_by('?')[:5])
+    return [quote.text for quote in random_quotes]
 
 
 def get_client_ip(request):

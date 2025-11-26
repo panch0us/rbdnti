@@ -156,3 +156,16 @@ class DownloadStatistic(models.Model):
         verbose_name = "Статистика скачиваний"
         verbose_name_plural = "Статистика скачиваний"
         ordering = ['-downloaded_at']
+
+
+class TickerQuote(models.Model):
+    text = models.TextField(verbose_name="Текст цитаты")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    
+    def __str__(self):
+        return self.text[:50] + "..." if len(self.text) > 50 else self.text
+    
+    class Meta:
+        verbose_name = "Цитата для бегущей строки"
+        verbose_name_plural = "Цитаты для бегущей строки"
+        ordering = ['-created_at']

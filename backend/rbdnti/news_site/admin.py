@@ -1,9 +1,11 @@
+from django import forms
 from django.contrib import admin, messages
 from django.urls import path
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.html import format_html
 from django.http import JsonResponse
-from .models import News, NewsFile, Section, Category, DownloadStatistic, Subdivision
+
+from .models import News, NewsFile, Section, Category, DownloadStatistic, Subdivision, TickerQuote
 
 @admin.register(Subdivision)
 class SubdivisionAdmin(admin.ModelAdmin):
@@ -163,3 +165,64 @@ class DownloadStatisticAdmin(admin.ModelAdmin):
     list_display = ['news_file', 'ip_address', 'downloaded_at']
     list_filter = ['downloaded_at']
     search_fields = ['news_file__filename', 'ip_address']
+
+
+
+
+class TickerQuoteAdminForm(forms.ModelForm):
+    txt_file = forms.FileField(
+        required=False,
+        label="Загрузить файл с цитатами (.txt)",
+        help_text="Файл будет разбит по строкам. Существующие цитаты будут удалены."
+    )
+    
+    class Meta:
+        model = TickerQuote
+        fields = ['txt_file']
+
+@admin.register(TickerQuote)
+class TickerQuoteAdmin(admin.ModelAdmin):
+    form = TickerQuoteAdminForm
+    list_display = ['text_preview', 'created_at']
+    actions = ['delete_all_quotes']
+    
+    def text_preview(self, obj):
+        return obj.text[:100] + "..." if len(obj.text) > 100 else obj.text
+    text_preview.short_description = "Текст цитаты"
+    
+    def save_model(self, request, obj, form, change):
+        txt_file = form.cleaned_data.get('txt_file')
+        
+        if txt_file:
+            # Удаляем все существующие цитаты
+            TickerQuote.objects.all().delete()
+            
+            # Читаем и парсим файл
+            content = txt_file.read().decode('utf-8').strip()
+            quotes = [line.strip() for line in content.split('\n') if line.strip()]
+            
+            # Создаем новые цитаты
+            for quote in quotes:
+                TickerQuote.objects.create(text=quote)
+            
+            messages.success(request, f"Успешно загружено {len(quotes)} цитат")
+        else:
+            super().save_model(request, obj, form, change)
+    
+    def delete_all_quotes(self, request, queryset):
+        count = TickerQuote.objects.count()
+        TickerQuote.objects.all().delete()
+        messages.success(request, f"Удалено {count} цитат")
+    delete_all_quotes.short_description = "Удалить все цитаты"
+    
+    def has_add_permission(self, request):
+        # Разрешаем добавлять только если нет цитат или через загрузку файла
+        return True
+    
+    def has_change_permission(self, request, obj=None):
+        # Запрещаем редактирование отдельных цитат
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        # Разрешаем удаление только массовое
+        return obj is None
